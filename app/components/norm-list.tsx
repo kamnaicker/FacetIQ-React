@@ -23,12 +23,12 @@ export function NormList({ norms, claims }: NormListProps) {
             {why(norm)}.
           </p>
 
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            {norm.transform === "None" ? "Unchanged" : `Transformed by ${norm.transform}`}
-            {norm.transformParameter ? ` (${norm.transformParameter})` : ""}
-            {". Specificity "}
-            {norm.specificity}.
-          </p>
+          {norm.transform !== "None" && (
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+              Shaped by {norm.transform.toLowerCase()}
+              {norm.transformParameter ? ` (${norm.transformParameter})` : ""}.
+            </p>
+          )}
 
           <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
             {norm.justifyingPrinciple}

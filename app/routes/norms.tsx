@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { NormConflict } from "../components/norm-conflict";
 import { NormForm } from "../components/norm-form";
 import { NormList } from "../components/norm-list";
+import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { createNorm, listClaims, listNorms } from "../lib/api/client";
 import type {
@@ -21,6 +22,7 @@ export default function Norms() {
   const [conflict, setConflict] = useState<NormConflictResponse | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
+  const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
 
   useEffect(() => {
@@ -30,17 +32,21 @@ export default function Norms() {
   async function load() {
     const [normResult, claimResult] = await Promise.all([listNorms(), listClaims()]);
 
-    if (normResult.ok) {
+    if (normResult.ok && claimResult.ok) {
       setNorms(normResult.data);
-    }
-
-    if (claimResult.ok) {
       setClaims(claimResult.data);
+      setNoProfile(false);
+      return;
     }
 
-    if (!normResult.ok || !claimResult.ok) {
-      setError("Could not load your rules.");
+    const failure = normResult.ok ? claimResult : normResult;
+
+    if (!failure.ok && failure.error.kind === "forbidden") {
+      setNoProfile(true);
+      return;
     }
+
+    setError("Could not load your rules.");
   }
 
   async function handleSubmit(body: CreateNormRequest) {
@@ -66,7 +72,7 @@ export default function Norms() {
         setFieldErrors(result.error.fieldErrors);
         break;
       case "forbidden":
-        setError("This account does not hold a profile to write rules about.");
+        setNoProfile(true);
         break;
       default:
         setError("Could not save the rule.");
@@ -79,34 +85,41 @@ export default function Norms() {
         Rules
       </h1>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        Each rule says what to release, to whom, and why. A rule that cannot be told apart from one
-        you have already written is refused rather than guessed between.
+        What each person sees when they ask about you.
       </p>
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 
-      <div className="mt-8">
-        <NormList norms={norms} claims={claims} />
-      </div>
-
-      <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-        Write a rule
-      </h2>
-
-      {conflict && (
-        <div className="mt-4">
-          <NormConflict conflict={conflict} claims={claims} />
+      {noProfile ? (
+        <div className="mt-8">
+          <NoProfile />
         </div>
-      )}
+      ) : (
+        <>
+          <div className="mt-8">
+            <NormList norms={norms} claims={claims} />
+          </div>
 
-      <div className="mt-4">
-        <NormForm
-          claims={claims}
-          fieldErrors={fieldErrors}
-          busy={busy}
-          onSubmit={handleSubmit}
-        />
-      </div>
+          <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
+            Write a rule
+          </h2>
+
+          {conflict && (
+            <div className="mt-4">
+              <NormConflict conflict={conflict} claims={claims} />
+            </div>
+          )}
+
+          <div className="mt-4">
+            <NormForm
+              claims={claims}
+              fieldErrors={fieldErrors}
+              busy={busy}
+              onSubmit={handleSubmit}
+            />
+          </div>
+        </>
+      )}
     </>
   );
 }

@@ -5,10 +5,7 @@ type NormConflictProps = {
   claims: AttributeResponse[];
 };
 
-/**
- * Shown in place rather than in a dialog. The subject has to compare what they wrote against what
- * is already there, and a modal would cover the form they need to edit.
- */
+// In place rather than in a dialog, since a modal would cover the form being corrected.
 export function NormConflict({ conflict, claims }: NormConflictProps) {
   return (
     <section
@@ -16,13 +13,12 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
       className="rounded-md border border-amber-300 bg-amber-50 p-4 dark:border-amber-900 dark:bg-amber-950"
     >
       <h3 className="text-sm font-semibold text-amber-900 dark:text-amber-200">
-        Not saved. This rule cannot be told apart from{" "}
-        {conflict.collisions.length === 1 ? "one you have already written" : "rules you have already written"}.
+        Not saved. This rule overlaps{" "}
+        {conflict.collisions.length === 1 ? "one you already have" : "rules you already have"}.
       </h3>
 
       <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
-        Each pair below scores the same specificity, so nothing decides between them. Bind another
-        condition on one of them, or change what this rule releases.
+        Narrow one of them so they cannot both apply to the same request.
       </p>
 
       <ul className="mt-3 space-y-3">
@@ -38,8 +34,7 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
             </p>
 
             <p className="mt-1 text-amber-800 dark:text-amber-300">
-              Both would apply to {witness(collision.overlappingRelationship, collision.overlappingPurpose)},
-              at specificity {collision.specificity}.
+              Both would apply to {witness(collision.overlappingRelationship, collision.overlappingPurpose)}.
             </p>
           </li>
         ))}

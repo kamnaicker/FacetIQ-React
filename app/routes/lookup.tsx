@@ -55,7 +55,7 @@ export default function Lookup() {
         Lookup
       </h1>
       <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        What you receive depends on the standing you hold and the purpose you state.
+        Ask someone for a detail from their profile.
       </p>
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-sm space-y-4">
