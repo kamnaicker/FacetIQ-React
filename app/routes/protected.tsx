@@ -42,6 +42,14 @@ export default function Protected() {
             >
               Rules
             </NavLink>
+            <NavLink
+              to="/claims"
+              className={({ isActive }) =>
+                isActive ? "text-neutral-900 dark:text-neutral-100" : undefined
+              }
+            >
+              Claims
+            </NavLink>
           </nav>
 
           <button

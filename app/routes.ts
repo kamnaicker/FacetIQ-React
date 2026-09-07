@@ -8,5 +8,6 @@ export default [
   layout("routes/protected.tsx", [
     route("lookup", "routes/lookup.tsx"),
     route("norms", "routes/norms.tsx"),
+    route("claims", "routes/claims.tsx"),
   ]),
 ] satisfies RouteConfig;
