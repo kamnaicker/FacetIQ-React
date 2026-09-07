@@ -45,6 +45,16 @@ export default function App() {
   return <Outlet />;
 }
 
+// Shown while the bundle loads and clientLoader runs. Without it a guarded route is blank on a
+// hard page load.
+export function HydrateFallback() {
+  return (
+    <p className="px-6 py-16 text-center text-sm text-neutral-500 dark:text-neutral-400">
+      Loading
+    </p>
+  );
+}
+
 export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   let message = "Oops!";
   let details = "An unexpected error occurred.";

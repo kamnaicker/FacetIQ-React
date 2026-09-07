@@ -71,20 +71,64 @@ async function readError(response: Response): Promise<ApiError> {
     return { kind: "conflict", conflict: JSON.parse(body) as NormConflictResponse };
   }
 
-  // Every 400 from this API is ProblemDetails with an errors dictionary keyed by field.
+  // Every 400 from this API is ProblemDetails with an errors dictionary keyed by field. Keys
+  // arrive in PascalCase, so they are lowered here to match the names the forms use.
   if (response.status === 400) {
     const problem = JSON.parse(body) as { errors?: Record<string, string[]> };
-    return { kind: "validation", fieldErrors: problem.errors ?? {} };
+    return { kind: "validation", fieldErrors: camelCaseKeys(problem.errors ?? {}) };
   }
 
   return { kind: "unexpected", status: response.status, message: body };
 }
 
+/**
+ * Identity keys its refusals by error code, not by field, so a form has nothing to bind them to.
+ * Mapping happens here rather than in the form, so the codes stop at the facade.
+ */
+const identityFields: Record<string, string> = {
+  duplicateEmail: "email",
+  duplicateUserName: "email",
+  invalidEmail: "email",
+  invalidUserName: "email",
+  passwordTooShort: "password",
+  passwordRequiresDigit: "password",
+  passwordRequiresLower: "password",
+  passwordRequiresUpper: "password",
+  passwordRequiresNonAlphanumeric: "password",
+  passwordRequiresUniqueChars: "password",
+};
+
+function camelCaseKeys(errors: Record<string, string[]>): Record<string, string[]> {
+  return Object.fromEntries(
+    Object.entries(errors).map(([key, messages]) => [
+      key.charAt(0).toLowerCase() + key.slice(1),
+      messages,
+    ]),
+  );
+}
+
+function byField(errors: Record<string, string[]>): Record<string, string[]> {
+  const mapped: Record<string, string[]> = {};
+
+  for (const [code, messages] of Object.entries(errors)) {
+    const field = identityFields[code] ?? code;
+    mapped[field] = [...(mapped[field] ?? []), ...messages];
+  }
+
+  return mapped;
+}
+
 export async function register(email: string, password: string): Promise<Result<void>> {
-  return request<void>("/register", {
+  const result = await request<void>("/register", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
+
+  if (!result.ok && result.error.kind === "validation") {
+    return { ok: false, error: { kind: "validation", fieldErrors: byField(result.error.fieldErrors) } };
+  }
+
+  return result;
 }
 
 export async function signIn(email: string, password: string): Promise<Result<void>> {

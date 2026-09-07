@@ -1,3 +1,5 @@
+import { Link } from "react-router";
+
 export function meta() {
   return [
     { title: "FacetIQ" },
@@ -13,6 +15,17 @@ export default function Home() {
       </h1>
       <p className="mt-2 text-neutral-600 dark:text-neutral-400">
         Contextual disclosure of identity claims.
+      </p>
+
+      <p className="mt-6 text-sm text-neutral-600 dark:text-neutral-400">
+        <Link to="/sign-in" className="underline underline-offset-4">
+          Sign in
+        </Link>{" "}
+        or{" "}
+        <Link to="/register" className="underline underline-offset-4">
+          register
+        </Link>
+        .
       </p>
     </main>
   );
