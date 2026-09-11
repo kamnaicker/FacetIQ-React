@@ -9,5 +9,6 @@ export default [
     route("lookup", "routes/lookup.tsx"),
     route("norms", "routes/norms.tsx"),
     route("claims", "routes/claims.tsx"),
+    route("people", "routes/standings.tsx"),
   ]),
 ] satisfies RouteConfig;

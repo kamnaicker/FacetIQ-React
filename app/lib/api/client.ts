@@ -6,9 +6,12 @@ import type {
   CreateNormRequest,
   DisclosureRequest,
   DisclosureResponse,
+  IssueStandingRequest,
   NormConflictResponse,
   NormResponse,
   Result,
+  StandingResponse,
+  StandingsResponse,
 } from "./types";
 
 const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5197";
@@ -143,6 +146,10 @@ export async function signIn(email: string, password: string): Promise<Result<vo
 
   setToken(result.data.accessToken);
 
+  // Idempotent, so signing in is also what gives a new account its profile. Without it a first
+  // sign in lands on screens that have nothing to show.
+  await request<{ id: string }>("/subject", { method: "POST" });
+
   return { ok: true, data: undefined };
 }
 
@@ -152,6 +159,10 @@ export function signOut(): void {
 
 export function isSignedIn(): boolean {
   return getToken() !== null;
+}
+
+export async function mySubject(): Promise<Result<{ id: string }>> {
+  return request<{ id: string }>("/subject");
 }
 
 export async function disclose(
@@ -172,6 +183,23 @@ export async function createNorm(body: CreateNormRequest): Promise<Result<NormRe
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+export async function listStandings(): Promise<Result<StandingsResponse>> {
+  return request<StandingsResponse>("/standing");
+}
+
+export async function issueStanding(
+  body: IssueStandingRequest,
+): Promise<Result<StandingResponse>> {
+  return request<StandingResponse>("/standing", {
+    method: "POST",
+    body: JSON.stringify(body),
+  });
+}
+
+export async function acceptStanding(id: string): Promise<Result<void>> {
+  return request<void>(`/standing/${id}/accept`, { method: "POST" });
 }
 
 export async function listClaims(): Promise<Result<AttributeResponse[]>> {

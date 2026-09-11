@@ -65,6 +65,27 @@ export type CreateAttributeRequest = {
   collectedFor?: string | null;
 };
 
+export type StandingResponse = {
+  id: string;
+  subjectId: string;
+  value: string;
+  issuerKind: string;
+  issuer: string;
+  holder: string | null;
+  issuedAt: string;
+  acceptedAt: string | null;
+};
+
+export type StandingsResponse = {
+  issued: StandingResponse[];
+  held: StandingResponse[];
+};
+
+export type IssueStandingRequest = {
+  email: string;
+  value: string;
+};
+
 /**
  * Refusals the API can return, named in its terms rather than in HTTP status codes.
  * Field errors keep the shape the API sends so a form can bind them directly.

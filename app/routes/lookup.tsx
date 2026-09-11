@@ -1,11 +1,11 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { DisclosureResult } from "../components/disclosure-result";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { Select } from "../components/ui/select";
-import { disclose } from "../lib/api/client";
-import type { ApiError, DisclosureResponse } from "../lib/api/types";
+import { disclose, listStandings } from "../lib/api/client";
+import type { ApiError, DisclosureResponse, StandingResponse } from "../lib/api/types";
 import { purposes } from "../lib/purposes";
 
 export function meta() {
@@ -17,6 +17,16 @@ export default function Lookup() {
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [known, setKnown] = useState<StandingResponse[]>([]);
+  const [subjectId, setSubjectId] = useState("");
+
+  useEffect(() => {
+    listStandings().then((result) => {
+      if (result.ok) {
+        setKnown(result.data.held.filter((standing) => standing.acceptedAt !== null));
+      }
+    });
+  }, []);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -61,13 +71,32 @@ export default function Lookup() {
       <form onSubmit={handleSubmit} className="mt-6 max-w-sm space-y-4">
         {error && <Alert>{error}</Alert>}
 
-        <Field
-          label="Subject"
-          name="subjectId"
-          placeholder="00000000-0000-0000-0000-000000000000"
-          required
-          errors={fieldErrors.subjectId}
-        />
+        <div className="space-y-2">
+          <Field
+            label="Who you are asking"
+            name="subjectId"
+            placeholder="Their profile reference"
+            required
+            value={subjectId}
+            onChange={(event) => setSubjectId(event.target.value)}
+            errors={fieldErrors.subjectId}
+          />
+
+          {known.length > 0 && (
+            <div className="flex flex-wrap gap-2">
+              {known.map((standing) => (
+                <button
+                  key={standing.id}
+                  type="button"
+                  onClick={() => setSubjectId(standing.subjectId)}
+                  className="rounded border border-neutral-300 px-2 py-1 text-sm text-neutral-700 hover:border-neutral-500 dark:border-neutral-700 dark:text-neutral-300"
+                >
+                  {standing.issuer}
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
         <Field
           label="Attribute"
           name="attributeKey"
