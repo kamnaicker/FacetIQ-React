@@ -3,6 +3,9 @@ import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
+import { List, ListItem } from "../components/ui/list";
+import { PageHeader } from "../components/ui/page-header";
+import { useNotify } from "../components/ui/toast";
 import { acceptStanding, issueStanding, listStandings } from "../lib/api/client";
 import type { StandingResponse } from "../lib/api/types";
 
@@ -17,6 +20,7 @@ export default function Standings() {
   const [error, setError] = useState<string | null>(null);
   const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
+  const notify = useNotify();
 
   useEffect(() => {
     load();
@@ -42,11 +46,12 @@ export default function Standings() {
   async function handleIssue(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const form = new FormData(event.currentTarget);
+    // Read before the await: React clears currentTarget once the handler yields.
+    const element = event.currentTarget;
+    const form = new FormData(element);
 
     setBusy(true);
     setFieldErrors({});
-    setError(null);
 
     const result = await issueStanding({
       email: String(form.get("email")).trim(),
@@ -56,7 +61,8 @@ export default function Standings() {
     setBusy(false);
 
     if (result.ok) {
-      event.currentTarget.reset();
+      element.reset();
+      notify("success", `Added ${result.data.holder}. It takes effect once they confirm.`);
       await load();
       return;
     }
@@ -66,30 +72,28 @@ export default function Standings() {
       return;
     }
 
-    setError("Could not add that person.");
+    if (result.error.kind !== "unauthorized") {
+      notify("error", "That person was not added. Try again.");
+    }
   }
 
-  async function handleAccept(id: string) {
-    setError(null);
-
-    const result = await acceptStanding(id);
+  async function handleAccept(standing: StandingResponse) {
+    const result = await acceptStanding(standing.id);
 
     if (result.ok) {
+      notify("success", `Confirmed. ${standing.issuer}'s rules now treat you as their ${standing.value}.`);
       await load();
       return;
     }
 
-    setError("Could not confirm that.");
+    if (result.error.kind !== "unauthorized") {
+      notify("error", "That was not confirmed. Try again.");
+    }
   }
 
   return (
     <>
-      <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-        People
-      </h1>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        Say who someone is to you. Your rules use it once they confirm.
-      </p>
+      <PageHeader title="People" description="Say who someone is to you. Your rules use it once they confirm." />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 
@@ -109,12 +113,9 @@ export default function Standings() {
                 Nobody has added you yet.
               </p>
             ) : (
-              <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+              <List>
                 {held.map((standing) => (
-                  <li
-                    key={standing.id}
-                    className="flex flex-wrap items-center gap-x-3 gap-y-2 px-4 py-3"
-                  >
+                  <ListItem key={standing.id}>
                     <span className="text-sm text-neutral-900 dark:text-neutral-100">
                       {standing.issuer} calls you their {standing.value}
                     </span>
@@ -127,19 +128,19 @@ export default function Standings() {
                       <Button
                         type="button"
                         className="ml-auto"
-                        onClick={() => handleAccept(standing.id)}
+                        onClick={() => handleAccept(standing)}
                       >
                         Confirm
                       </Button>
                     )}
-                  </li>
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
             )}
           </div>
 
           <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            How you describe others
+            Who others are to you
           </h2>
 
           <div className="mt-3">
@@ -148,19 +149,21 @@ export default function Standings() {
                 You have not added anyone yet.
               </p>
             ) : (
-              <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+              <List>
                 {issued.map((standing) => (
-                  <li key={standing.id} className="flex flex-wrap items-center gap-x-3 px-4 py-3">
+                  <ListItem key={standing.id}>
                     <span className="text-sm text-neutral-900 dark:text-neutral-100">
-                      {standing.holder} is your {standing.value}
+                      {standing.issuerKind === "Institution"
+                        ? `${standing.issuer} says ${standing.holder} is your ${standing.value}`
+                        : `${standing.holder} is your ${standing.value}`}
                     </span>
 
                     <span className="ml-auto text-sm text-neutral-500 dark:text-neutral-400">
                       {standing.acceptedAt ? "Confirmed" : "Waiting for them to confirm"}
                     </span>
-                  </li>
+                  </ListItem>
                 ))}
-              </ul>
+              </List>
             )}
           </div>
 
@@ -174,6 +177,8 @@ export default function Standings() {
               name="email"
               type="email"
               required
+              placeholder="name@example.com"
+              hint="The address they use on FacetIQ. They confirm before it takes effect."
               errors={fieldErrors.email}
             />
             <Field
@@ -181,6 +186,7 @@ export default function Standings() {
               name="value"
               required
               placeholder="colleague"
+              hint="One word your rules can use, such as colleague, friend or doctor."
               errors={fieldErrors.value}
             />
 

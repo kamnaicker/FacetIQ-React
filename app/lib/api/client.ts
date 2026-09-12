@@ -2,6 +2,7 @@ import { clearToken, getToken, setToken } from "./token";
 import type {
   ApiError,
   AttributeResponse,
+  ClaimInUseResponse,
   CreateAttributeRequest,
   CreateNormRequest,
   DisclosureRequest,
@@ -14,7 +15,9 @@ import type {
   StandingsResponse,
 } from "./types";
 
-const baseUrl = import.meta.env.VITE_API_URL ?? "http://localhost:5197";
+// Unset in development, where Vite proxies /api to the API (see vite.config.ts). A deployed
+// build sets it to the API's address at build time.
+const baseUrl = import.meta.env.VITE_API_URL ?? "/api";
 
 /**
  * The one place fetch, the base address and the token appear. Everything above this works in
@@ -58,9 +61,17 @@ async function readBody<T>(response: Response): Promise<T> {
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }
 
+export const sessionExpired = "facetiq:session-expired";
+
 async function readError(response: Response): Promise<ApiError> {
   if (response.status === 401) {
-    clearToken();
+    // Only a signed in request can expire. A wrong password on the sign in form carries no
+    // token, so it is reported to the form instead of ending a session that never began.
+    if (getToken() !== null) {
+      clearToken();
+      window.dispatchEvent(new Event(sessionExpired));
+    }
+
     return { kind: "unauthorized" };
   }
 
@@ -70,8 +81,9 @@ async function readError(response: Response): Promise<ApiError> {
 
   const body = await response.text();
 
+  // Left raw: the function that made the call knows which kind of conflict it can be.
   if (response.status === 409) {
-    return { kind: "conflict", conflict: JSON.parse(body) as NormConflictResponse };
+    return { kind: "conflict", body: JSON.parse(body) };
   }
 
   // Every 400 from this API is ProblemDetails with an errors dictionary keyed by field. Keys
@@ -135,7 +147,7 @@ export async function register(email: string, password: string): Promise<Result<
 }
 
 export async function signIn(email: string, password: string): Promise<Result<void>> {
-  const result = await request<{ accessToken: string }>("/login", {
+  const result = await request<{ accessToken: string; expiresIn: number }>("/login", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
@@ -144,7 +156,7 @@ export async function signIn(email: string, password: string): Promise<Result<vo
     return result;
   }
 
-  setToken(result.data.accessToken);
+  setToken(result.data.accessToken, result.data.expiresIn);
 
   // Idempotent, so signing in is also what gives a new account its profile. Without it a first
   // sign in lands on screens that have nothing to show.
@@ -165,6 +177,10 @@ export async function mySubject(): Promise<Result<{ id: string }>> {
   return request<{ id: string }>("/subject");
 }
 
+export async function currentAccount(): Promise<Result<{ email: string }>> {
+  return request<{ email: string }>("/manage/info");
+}
+
 export async function disclose(
   body: DisclosureRequest,
 ): Promise<Result<DisclosureResponse>> {
@@ -179,10 +195,30 @@ export async function listNorms(): Promise<Result<NormResponse[]>> {
 }
 
 export async function createNorm(body: CreateNormRequest): Promise<Result<NormResponse>> {
-  return request<NormResponse>("/norm", {
+  const result = await request<NormResponse>("/norm", {
     method: "POST",
     body: JSON.stringify(body),
   });
+
+  if (!result.ok && result.error.kind === "conflict") {
+    return { ok: false, error: { kind: "overlap", conflict: result.error.body as NormConflictResponse } };
+  }
+
+  return result;
+}
+
+export async function removeRule(id: string): Promise<Result<void>> {
+  return request<void>(`/norm/${id}`, { method: "DELETE" });
+}
+
+export async function deleteClaim(id: string): Promise<Result<void>> {
+  const result = await request<void>(`/attribute/${id}`, { method: "DELETE" });
+
+  if (!result.ok && result.error.kind === "conflict") {
+    return { ok: false, error: { kind: "inUse", rules: (result.error.body as ClaimInUseResponse).rules } };
+  }
+
+  return result;
 }
 
 export async function listStandings(): Promise<Result<StandingsResponse>> {

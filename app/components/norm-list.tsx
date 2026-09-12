@@ -1,41 +1,41 @@
+import { ConfirmButton } from "./ui/confirm-button";
+import { List, ListItem } from "./ui/list";
 import type { AttributeResponse, NormResponse } from "../lib/api/types";
+import { displayLabel, kindLabel } from "../lib/options";
 
 type NormListProps = {
   norms: NormResponse[];
   claims: AttributeResponse[];
+  onRemove: (norm: NormResponse) => Promise<void>;
 };
 
-export function NormList({ norms, claims }: NormListProps) {
+export function NormList({ norms, claims, onRemove }: NormListProps) {
   if (norms.length === 0) {
     return (
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        You have not written any rules yet.
+        No rules yet, so nobody else can see anything about you.
       </p>
     );
   }
 
   return (
-    <ul className="divide-y divide-neutral-200 rounded-md border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800">
+    <List>
       {norms.map((norm) => (
-        <li key={`${norm.id}-${norm.version}`} className="px-4 py-3">
-          <p className="text-sm text-neutral-900 dark:text-neutral-100">
-            Release <Claim norm={norm} claims={claims} /> to {who(norm)} asking for{" "}
-            {why(norm)}.
-          </p>
-
-          {norm.transform !== "None" && (
-            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-              Shaped by {norm.transform.toLowerCase()}
-              {norm.transformParameter ? ` (${norm.transformParameter})` : ""}.
+        <ListItem key={`${norm.id}-${norm.version}`} className="items-start gap-4">
+          <div className="flex-1">
+            <p className="text-sm text-neutral-900 dark:text-neutral-100">
+              <Claim norm={norm} claims={claims} /> {who(norm.relationship)}, {why(norm.purpose)}.
             </p>
-          )}
 
-          <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-            {norm.justifyingPrinciple}
-          </p>
-        </li>
+            <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
+              {displayLabel(norm.transform, norm.transformParameter)}. {norm.justifyingPrinciple}
+            </p>
+          </div>
+
+          <ConfirmButton label="Remove" confirmLabel="Remove rule" onConfirm={() => onRemove(norm)} />
+        </ListItem>
       ))}
-    </ul>
+    </List>
   );
 }
 
@@ -43,21 +43,20 @@ function Claim({ norm, claims }: { norm: NormResponse; claims: AttributeResponse
   const claim = claims.find((candidate) => candidate.id === norm.attributeId);
 
   if (!claim) {
-    return <span className="text-neutral-500">a claim you no longer hold</span>;
+    return <span className="text-neutral-500">A claim you no longer hold</span>;
   }
 
-  return (
-    <span className="font-medium">
-      {claim.value}
-      {claim.label ? ` (${claim.label})` : ""}
-    </span>
-  );
+  const name = claim.key === "name" ? claim.value : kindLabel(claim.key);
+
+  return <span className="font-medium">{name}</span>;
 }
 
-function who(norm: NormResponse): string {
-  return norm.relationship ? `anyone holding "${norm.relationship}"` : "anyone";
+export function who(relationship: string | null): string {
+  return relationship
+    ? `is shared with people you have described as ${relationship}`
+    : "is shared with anyone";
 }
 
-function why(norm: NormResponse): string {
-  return norm.purpose ? `${norm.purpose.toLowerCase()} purposes` : "any purpose";
+export function why(purpose: string | null): string {
+  return purpose ? `when they ask for ${purpose.toLowerCase()} reasons` : "for any reason";
 }

@@ -4,7 +4,9 @@ import { NormForm } from "../components/norm-form";
 import { NormList } from "../components/norm-list";
 import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
-import { createNorm, listClaims, listNorms } from "../lib/api/client";
+import { PageHeader } from "../components/ui/page-header";
+import { useNotify } from "../components/ui/toast";
+import { createNorm, listClaims, listNorms, listStandings, removeRule } from "../lib/api/client";
 import type {
   AttributeResponse,
   CreateNormRequest,
@@ -19,27 +21,34 @@ export function meta() {
 export default function Norms() {
   const [norms, setNorms] = useState<NormResponse[]>([]);
   const [claims, setClaims] = useState<AttributeResponse[]>([]);
+  const [terms, setTerms] = useState<string[]>([]);
   const [conflict, setConflict] = useState<NormConflictResponse | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
   const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
+  const notify = useNotify();
 
   useEffect(() => {
     load();
   }, []);
 
   async function load() {
-    const [normResult, claimResult] = await Promise.all([listNorms(), listClaims()]);
+    const [normResult, claimResult, standingResult] = await Promise.all([
+      listNorms(),
+      listClaims(),
+      listStandings(),
+    ]);
 
-    if (normResult.ok && claimResult.ok) {
+    if (normResult.ok && claimResult.ok && standingResult.ok) {
       setNorms(normResult.data);
       setClaims(claimResult.data);
+      setTerms(distinctTerms(standingResult.data.issued.map((standing) => standing.value)));
       setNoProfile(false);
       return;
     }
 
-    const failure = normResult.ok ? claimResult : normResult;
+    const failure = !normResult.ok ? normResult : !claimResult.ok ? claimResult : standingResult;
 
     if (!failure.ok && failure.error.kind === "forbidden") {
       setNoProfile(true);
@@ -49,24 +58,25 @@ export default function Norms() {
     setError("Could not load your rules.");
   }
 
-  async function handleSubmit(body: CreateNormRequest) {
+  async function handleSubmit(body: CreateNormRequest): Promise<boolean> {
     setBusy(true);
     setConflict(null);
     setFieldErrors({});
-    setError(null);
 
     const result = await createNorm(body);
 
     setBusy(false);
 
     if (result.ok) {
+      notify("success", "Rule saved.");
       await load();
-      return;
+      return true;
     }
 
     switch (result.error.kind) {
-      case "conflict":
+      case "overlap":
         setConflict(result.error.conflict);
+        notify("warning", "Not saved. It overlaps a rule you already have.");
         break;
       case "validation":
         setFieldErrors(result.error.fieldErrors);
@@ -74,19 +84,32 @@ export default function Norms() {
       case "forbidden":
         setNoProfile(true);
         break;
+      case "unauthorized":
+        break;
       default:
-        setError("Could not save the rule.");
+        notify("error", "The rule was not saved. Try again.");
+    }
+
+    return false;
+  }
+
+  async function handleRemove(norm: NormResponse) {
+    const result = await removeRule(norm.id);
+
+    if (result.ok) {
+      notify("success", "Rule removed. It no longer applies to anyone.");
+      await load();
+      return;
+    }
+
+    if (result.error.kind !== "unauthorized") {
+      notify("error", "The rule was not removed. Try again.");
     }
   }
 
   return (
     <>
-      <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-        Rules
-      </h1>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        What each person sees when they ask about you.
-      </p>
+      <PageHeader title="Rules" description="What each person sees when they ask about you." />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 
@@ -97,7 +120,7 @@ export default function Norms() {
       ) : (
         <>
           <div className="mt-8">
-            <NormList norms={norms} claims={claims} />
+            <NormList norms={norms} claims={claims} onRemove={handleRemove} />
           </div>
 
           <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
@@ -113,6 +136,7 @@ export default function Norms() {
           <div className="mt-4">
             <NormForm
               claims={claims}
+              terms={terms}
               fieldErrors={fieldErrors}
               busy={busy}
               onSubmit={handleSubmit}
@@ -122,4 +146,19 @@ export default function Norms() {
       )}
     </>
   );
+}
+
+// Matching compares terms case-insensitively, so "Colleague" and "colleague" are one choice here.
+function distinctTerms(values: string[]): string[] {
+  const seen = new Map<string, string>();
+
+  for (const value of values) {
+    const key = value.toLowerCase();
+
+    if (!seen.has(key)) {
+      seen.set(key, value);
+    }
+  }
+
+  return [...seen.values()].sort((a, b) => a.localeCompare(b));
 }

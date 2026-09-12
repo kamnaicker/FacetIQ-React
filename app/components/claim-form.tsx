@@ -1,56 +1,69 @@
+import { useState } from "react";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { Select } from "./ui/select";
 import type { CreateAttributeRequest } from "../lib/api/types";
-import { any, purposes } from "../lib/purposes";
+import { any, kinds, purposes } from "../lib/options";
 
 type ClaimFormProps = {
   fieldErrors: Record<string, string[]>;
   busy: boolean;
-  onSubmit: (body: CreateAttributeRequest) => void;
+  onSubmit: (body: CreateAttributeRequest) => Promise<boolean>;
 };
 
 export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+  const [kind, setKind] = useState("name");
+  const isDate = kind === "dateOfBirth";
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
-    const form = new FormData(event.currentTarget);
+    const element = event.currentTarget;
+    const form = new FormData(element);
     const label = String(form.get("label")).trim();
     const collectedFor = String(form.get("collectedFor"));
 
-    onSubmit({
-      key: String(form.get("key")).trim(),
+    const saved = await onSubmit({
+      key: kind,
       value: String(form.get("value")).trim(),
       label: label === "" ? null : label,
       collectedFor: collectedFor === any ? null : collectedFor,
     });
+
+    if (saved) {
+      element.reset();
+    }
   }
 
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-sm space-y-5">
+      <Select label="Kind" name="key" options={kinds} value={kind} onValueChange={setKind} />
+
       <Field
-        label="Kind of claim"
-        name="key"
-        defaultValue="name"
+        key={kind}
+        label={isDate ? "Date of birth" : "Name"}
+        name="value"
+        type={isDate ? "date" : "text"}
         required
-        placeholder="name"
-        errors={fieldErrors.key}
+        placeholder={isDate ? undefined : "Amara Nwosu"}
+        hint={isDate ? undefined : "Exactly as you want it shown, in any script or spelling."}
+        errors={fieldErrors.value}
       />
 
-      <Field label="Value" name="value" required errors={fieldErrors.value} />
-
       <Field
-        label="When it applies"
+        label="Where you use it"
         name="label"
-        placeholder="legal, professional, family"
+        placeholder="professional"
+        hint="A note for yourself, so you can tell your claims apart when writing rules."
         errors={fieldErrors.label}
       />
 
       <Select
-        label="Collected for"
+        label="Only for"
         name="collectedFor"
+        hint="Limit this claim to one reason. It will never be shared for any other, whatever your rules say."
         defaultValue={any}
-        options={[{ value: any, label: "No stated limit" }, ...purposes]}
+        options={[{ value: any, label: "Any reason" }, ...purposes]}
       />
 
       <Button type="submit" disabled={busy}>

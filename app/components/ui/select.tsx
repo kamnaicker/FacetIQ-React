@@ -5,14 +5,18 @@ export type Option = { value: string; label: string };
 type SelectProps = {
   label: string;
   name: string;
-  defaultValue: string;
   options: readonly Option[];
+  hint?: string;
+  defaultValue?: string;
+  value?: string;
+  onValueChange?: (value: string) => void;
 };
 
-// Radix renders a hidden native select when given a name, so the form stays uncontrolled and
-// FormData picks the value up on submit.
-export function Select({ label, name, defaultValue, options }: SelectProps) {
+// Radix renders a hidden native select when given a name, so FormData picks the value up on
+// submit. Pass value and onValueChange only where another field depends on the choice.
+export function Select({ label, name, options, hint, defaultValue, value, onValueChange }: SelectProps) {
   const labelId = `${name}-label`;
+  const hintId = hint ? `${name}-hint` : undefined;
 
   return (
     <div className="space-y-1.5">
@@ -23,9 +27,21 @@ export function Select({ label, name, defaultValue, options }: SelectProps) {
         {label}
       </span>
 
-      <RadixSelect.Root name={name} defaultValue={defaultValue}>
+      {hint && (
+        <p id={hintId} className="text-sm text-neutral-500 dark:text-neutral-400">
+          {hint}
+        </p>
+      )}
+
+      <RadixSelect.Root
+        name={name}
+        defaultValue={defaultValue}
+        value={value}
+        onValueChange={onValueChange}
+      >
         <RadixSelect.Trigger
           aria-labelledby={labelId}
+          aria-describedby={hintId}
           className="flex w-full items-center justify-between rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
         >
           <RadixSelect.Value />

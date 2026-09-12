@@ -1,4 +1,6 @@
 import type { AttributeResponse, NormConflictResponse } from "../lib/api/types";
+import { kindLabel } from "../lib/options";
+import { who, why } from "./norm-list";
 
 type NormConflictProps = {
   conflict: NormConflictResponse;
@@ -18,7 +20,8 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
       </h3>
 
       <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
-        Narrow one of them so they cannot both apply to the same request.
+        Both would answer the same question with different things, and neither takes priority.
+        Make this rule narrower by choosing who can see it or what they are asking for.
       </p>
 
       <ul className="mt-3 space-y-3">
@@ -28,13 +31,16 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
             className="border-t border-amber-200 pt-3 text-sm text-amber-900 dark:border-amber-900 dark:text-amber-200"
           >
             <p>
-              Collides with: <span className="font-medium">{name(collision.existing.attributeId, claims)}</span>
-              {collision.existing.purpose ? ` for ${collision.existing.purpose.toLowerCase()} purposes` : " for any purpose"}
-              {collision.existing.relationship ? `, to anyone holding "${collision.existing.relationship}"` : ", to anyone"}.
+              <span className="font-medium">{name(collision.existing.attributeId, claims)}</span>{" "}
+              {who(collision.existing.relationship)}, {why(collision.existing.purpose)}.
             </p>
 
             <p className="mt-1 text-amber-800 dark:text-amber-300">
-              Both would apply to {witness(collision.overlappingRelationship, collision.overlappingPurpose)}.
+              Both would apply to {asker(collision.overlappingRelationship)} asking{" "}
+              {collision.overlappingPurpose
+                ? `for ${collision.overlappingPurpose.toLowerCase()} reasons`
+                : "for any reason"}
+              .
             </p>
           </li>
         ))}
@@ -46,12 +52,13 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
 function name(attributeId: string, claims: AttributeResponse[]): string {
   const claim = claims.find((candidate) => candidate.id === attributeId);
 
-  return claim ? claim.value : "a claim you no longer hold";
+  if (!claim) {
+    return "A claim you no longer hold";
+  }
+
+  return claim.key === "name" ? claim.value : kindLabel(claim.key);
 }
 
-function witness(relationship: string | null, purpose: string | null): string {
-  const who = relationship ? `someone holding "${relationship}"` : "anyone";
-  const why = purpose ? `for ${purpose.toLowerCase()} purposes` : "for any purpose";
-
-  return `${who} asking ${why}`;
+function asker(relationship: string | null): string {
+  return relationship ? `someone you have described as ${relationship}` : "anyone";
 }

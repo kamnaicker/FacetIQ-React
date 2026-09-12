@@ -47,7 +47,14 @@ export default function SignIn() {
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && <Alert>{error}</Alert>}
 
-        <Field label="Email" name="email" type="email" autoComplete="email" required />
+        <Field
+          label="Email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          placeholder="name@example.com"
+          required
+        />
         <Field
           label="Password"
           name="password"

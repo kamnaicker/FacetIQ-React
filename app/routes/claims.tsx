@@ -1,10 +1,13 @@
 import { useEffect, useState } from "react";
 import { ClaimForm } from "../components/claim-form";
+import { ClaimInUse } from "../components/claim-in-use";
 import { ClaimList } from "../components/claim-list";
 import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
-import { createClaim, listClaims } from "../lib/api/client";
-import type { AttributeResponse, CreateAttributeRequest } from "../lib/api/types";
+import { PageHeader } from "../components/ui/page-header";
+import { useNotify } from "../components/ui/toast";
+import { createClaim, deleteClaim, listClaims } from "../lib/api/client";
+import type { AttributeResponse, CreateAttributeRequest, NormResponse } from "../lib/api/types";
 
 export function meta() {
   return [{ title: "Claims | FacetIQ" }];
@@ -16,6 +19,8 @@ export default function Claims() {
   const [error, setError] = useState<string | null>(null);
   const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
+  const [inUse, setInUse] = useState<{ claim: AttributeResponse; rules: NormResponse[] } | null>(null);
+  const notify = useNotify();
 
   useEffect(() => {
     load();
@@ -38,18 +43,18 @@ export default function Claims() {
     setError("Could not load your claims.");
   }
 
-  async function handleSubmit(body: CreateAttributeRequest) {
+  async function handleSubmit(body: CreateAttributeRequest): Promise<boolean> {
     setBusy(true);
     setFieldErrors({});
-    setError(null);
 
     const result = await createClaim(body);
 
     setBusy(false);
 
     if (result.ok) {
+      notify("success", `Added "${result.data.value}".`);
       await load();
-      return;
+      return true;
     }
 
     switch (result.error.kind) {
@@ -59,19 +64,39 @@ export default function Claims() {
       case "forbidden":
         setNoProfile(true);
         break;
+      case "unauthorized":
+        break;
       default:
-        setError("Could not add the claim.");
+        notify("error", "The claim was not added. Try again.");
+    }
+
+    return false;
+  }
+
+  async function handleDelete(claim: AttributeResponse) {
+    setInUse(null);
+
+    const result = await deleteClaim(claim.id);
+
+    if (result.ok) {
+      notify("success", `Deleted "${claim.value}".`);
+      await load();
+      return;
+    }
+
+    if (result.error.kind === "inUse") {
+      setInUse({ claim, rules: result.error.rules });
+      return;
+    }
+
+    if (result.error.kind !== "unauthorized") {
+      notify("error", "The claim was not deleted. Try again.");
     }
   }
 
   return (
     <>
-      <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-        Claims
-      </h1>
-      <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
-        What you hold about yourself. You can keep more than one of the same kind.
-      </p>
+      <PageHeader title="Claims" description="What you hold about yourself. You can keep more than one of the same kind." />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 
@@ -81,8 +106,14 @@ export default function Claims() {
         </div>
       ) : (
         <>
+          {inUse && (
+            <div className="mt-8">
+              <ClaimInUse claim={inUse.claim} rules={inUse.rules} />
+            </div>
+          )}
+
           <div className="mt-8">
-            <ClaimList claims={claims} />
+            <ClaimList claims={claims} onDelete={handleDelete} />
           </div>
 
           <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">

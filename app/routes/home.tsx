@@ -1,4 +1,14 @@
-import { Link } from "react-router";
+import { Link, redirect } from "react-router";
+import { isSignedIn } from "../lib/api/client";
+
+// Someone already signed in has no use for the sign-in links.
+export function clientLoader() {
+  if (isSignedIn()) {
+    throw redirect("/lookup");
+  }
+
+  return null;
+}
 
 export function meta() {
   return [

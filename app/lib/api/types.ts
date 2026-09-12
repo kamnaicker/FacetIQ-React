@@ -1,7 +1,7 @@
 export type Purpose = "Regulatory" | "Clinical" | "Social";
 
 export type DisclosureRequest = {
-  subjectId: string;
+  subjectEmail: string;
   attributeKey: string;
   purpose: string;
 };
@@ -67,7 +67,6 @@ export type CreateAttributeRequest = {
 
 export type StandingResponse = {
   id: string;
-  subjectId: string;
   value: string;
   issuerKind: string;
   issuer: string;
@@ -90,9 +89,15 @@ export type IssueStandingRequest = {
  * Refusals the API can return, named in its terms rather than in HTTP status codes.
  * Field errors keep the shape the API sends so a form can bind them directly.
  */
+export type ClaimInUseResponse = {
+  rules: NormResponse[];
+};
+
 export type ApiError =
   | { kind: "validation"; fieldErrors: Record<string, string[]> }
-  | { kind: "conflict"; conflict: NormConflictResponse }
+  | { kind: "conflict"; body: unknown }
+  | { kind: "overlap"; conflict: NormConflictResponse }
+  | { kind: "inUse"; rules: NormResponse[] }
   | { kind: "unauthorized" }
   | { kind: "forbidden" }
   | { kind: "network" }

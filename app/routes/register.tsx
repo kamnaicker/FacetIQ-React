@@ -45,8 +45,9 @@ export default function Register() {
 
     setBusy(false);
 
+    // A new profile is empty, so the first screen is the one that fills it.
     if (signedIn.ok) {
-      navigate("/lookup");
+      navigate("/claims");
       return;
     }
 
@@ -67,6 +68,8 @@ export default function Register() {
           name="email"
           type="email"
           autoComplete="email"
+          placeholder="name@example.com"
+          hint="Others use this to ask you for details or to add you."
           required
           errors={fieldErrors.email}
         />
@@ -75,6 +78,7 @@ export default function Register() {
           name="password"
           type="password"
           autoComplete="new-password"
+          hint="At least 6 characters, with an upper and lower case letter, a number and a symbol."
           required
           errors={fieldErrors.password}
         />

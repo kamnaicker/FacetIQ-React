@@ -1,86 +1,132 @@
+import { useState } from "react";
+import { Link } from "react-router";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { Select, type Option } from "./ui/select";
 import type { AttributeResponse, CreateNormRequest } from "../lib/api/types";
-import { any, purposes, transforms } from "../lib/purposes";
+import { any, displaysFor, kindLabel, purposes } from "../lib/options";
 
 type NormFormProps = {
   claims: AttributeResponse[];
+  /** The relationship terms the subject has given people, so a rule can only name one of them. */
+  terms: string[];
   fieldErrors: Record<string, string[]>;
   busy: boolean;
-  onSubmit: (body: CreateNormRequest) => void;
+  onSubmit: (body: CreateNormRequest) => Promise<boolean>;
 };
 
-export function NormForm({ claims, fieldErrors, busy, onSubmit }: NormFormProps) {
-  const claimOptions: Option[] = claims.map((claim) => ({
-    value: claim.id,
-    label: claim.label ? `${claim.value} (${claim.label})` : claim.value,
-  }));
+export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFormProps) {
+  const [claimId, setClaimId] = useState("");
+  const [display, setDisplay] = useState("None");
 
-  function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
-    event.preventDefault();
+  // Claims arrive after the first render, so fall back to the first one until a choice is made.
+  const selected = claims.find((claim) => claim.id === claimId) ?? claims[0];
 
-    const form = new FormData(event.currentTarget);
-    const relationship = String(form.get("relationship")).trim();
-    const purpose = String(form.get("purpose"));
-    const transform = String(form.get("transform"));
-    const parameter = String(form.get("transformParameter")).trim();
-
-    onSubmit({
-      attributeId: String(form.get("attributeId")),
-      relationship: relationship === "" ? null : relationship,
-      purpose: purpose === any ? null : purpose,
-      transform: transform === "None" ? null : transform,
-      transformParameter: parameter === "" ? null : parameter,
-      justifyingPrinciple: String(form.get("justifyingPrinciple")).trim(),
-    });
-  }
-
-  if (claimOptions.length === 0) {
+  if (!selected) {
     return (
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        Add a claim before writing a rule about one.
+        <Link to="/claims" className="underline underline-offset-4">
+          Add a claim
+        </Link>{" "}
+        first, then choose here who can see it.
       </p>
     );
   }
 
+  const claimOptions: Option[] = claims.map((claim) => ({ value: claim.id, label: describe(claim) }));
+
+  async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+
+    const element = event.currentTarget;
+    const form = new FormData(element);
+    const relationship = String(form.get("relationship") ?? any);
+    const purpose = String(form.get("purpose"));
+    const age = String(form.get("age") ?? "").trim();
+
+    const saved = await onSubmit({
+      attributeId: selected.id,
+      relationship: relationship === any ? null : relationship,
+      purpose: purpose === any ? null : purpose,
+      transform: display === "None" ? null : display,
+      transformParameter: display === "Generalise" ? age || "18" : null,
+      justifyingPrinciple: String(form.get("justifyingPrinciple")).trim(),
+    });
+
+    if (saved) {
+      element.reset();
+      setDisplay("None");
+    }
+  }
+
   return (
-    <form onSubmit={handleSubmit} className="max-w-sm space-y-4">
+    <form onSubmit={handleSubmit} className="max-w-sm space-y-5">
       <Select
-        label="Release"
+        label="What to share"
         name="attributeId"
-        defaultValue={claimOptions[0].value}
         options={claimOptions}
+        value={selected.id}
+        onValueChange={(id) => {
+          setClaimId(id);
+          setDisplay("None");
+        }}
       />
 
-      <Field
-        label="To anyone holding"
-        name="relationship"
-        placeholder="Leave empty for anyone"
-        errors={fieldErrors.relationship}
-      />
+      {terms.length === 0 ? (
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+          Anyone can see it. To limit a rule to certain people, first say who they are to you on
+          the{" "}
+          <Link to="/people" className="underline underline-offset-4">
+            People page
+          </Link>
+          .
+        </p>
+      ) : (
+        <Select
+          label="Who can see it"
+          name="relationship"
+          hint="People you have described this way, once they have confirmed it."
+          defaultValue={any}
+          options={[{ value: any, label: "Anyone" }, ...terms.map((term) => ({ value: term, label: term }))]}
+        />
+      )}
 
       <Select
-        label="Asking for"
+        label="When they are asking for"
         name="purpose"
+        hint="The reason they give when they ask."
         defaultValue={any}
         options={[{ value: any, label: "Any purpose" }, ...purposes]}
       />
 
-      <Select label="Shaped by" name="transform" defaultValue="None" options={transforms} />
-
-      <Field
-        label="Transform setting"
-        name="transformParameter"
-        placeholder="For example 18"
-        errors={fieldErrors.transformParameter}
+      <Select
+        label="How it is shown"
+        name="transform"
+        options={displaysFor(selected.key)}
+        value={display}
+        onValueChange={setDisplay}
       />
 
+      {display === "Generalise" && (
+        <Field
+          label="Age"
+          name="age"
+          type="number"
+          min={1}
+          max={150}
+          defaultValue={18}
+          required
+          hint="They see only whether you are over or under this age, never the date."
+          errors={fieldErrors.transformParameter}
+        />
+      )}
+
       <Field
-        label="Because"
+        label="Why you are sharing it"
         name="justifyingPrinciple"
         required
-        placeholder="The principle this rule rests on"
+        placeholder="Colleagues know me by my professional name."
+        hint="Kept with every answer, so you can check later why something was shared."
         errors={fieldErrors.justifyingPrinciple}
       />
 
@@ -89,4 +135,12 @@ export function NormForm({ claims, fieldErrors, busy, onSubmit }: NormFormProps)
       </Button>
     </form>
   );
+}
+
+function describe(claim: AttributeResponse): string {
+  if (claim.key === "name") {
+    return claim.label ? `${claim.value} (${claim.label})` : claim.value;
+  }
+
+  return `${kindLabel(claim.key)}: ${claim.value}`;
 }
