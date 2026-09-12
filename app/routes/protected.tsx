@@ -13,12 +13,13 @@ export function clientLoader() {
   return null;
 }
 
-// In the order a person sets themselves up: what they hold, who sees it, who people are to
-// them, and only then asking about someone else.
+// In the order a person sets themselves up: what they hold, who people are to them, which of
+// those people see what, and only then asking about someone else.
 const sections = [
   { to: "/claims", label: "Claims" },
-  { to: "/norms", label: "Rules" },
   { to: "/people", label: "People" },
+  { to: "/norms", label: "Rules" },
+  { to: "/requests", label: "Requests" },
   { to: "/lookup", label: "Lookup" },
 ];
 

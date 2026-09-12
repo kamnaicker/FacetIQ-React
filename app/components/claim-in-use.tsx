@@ -20,7 +20,7 @@ export function ClaimInUse({ claim, rules }: ClaimInUseProps) {
       <ul className="mt-2 space-y-1 text-sm text-amber-800 dark:text-amber-300">
         {rules.map((rule) => (
           <li key={rule.id}>
-            It {who(rule.relationship)}, {why(rule.purpose)}.
+            It is {who(rule.relationship)}, {why(rule.purpose)}.
           </li>
         ))}
       </ul>

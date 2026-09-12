@@ -5,6 +5,7 @@ import type {
   ClaimInUseResponse,
   CreateAttributeRequest,
   CreateNormRequest,
+  DisclosureRecordResponse,
   DisclosureRequest,
   DisclosureResponse,
   IssueStandingRequest,
@@ -188,6 +189,10 @@ export async function disclose(
     method: "POST",
     body: JSON.stringify(body),
   });
+}
+
+export async function listHistory(): Promise<Result<DisclosureRecordResponse[]>> {
+  return request<DisclosureRecordResponse[]>("/history");
 }
 
 export async function listNorms(): Promise<Result<NormResponse[]>> {

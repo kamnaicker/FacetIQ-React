@@ -35,18 +35,33 @@ export function displaysFor(key: string): readonly Option[] {
   return [
     { value: "None", label: "Exactly as written" },
     specific,
-    { value: "Redact", label: "Hidden" },
+    { value: "Redact", label: "Hidden, but they are told it exists" },
+    { value: deny, label: "Not shared at all" },
   ];
 }
 
-export function displayLabel(transform: string, parameter: string | null): string {
-  switch (transform) {
+/**
+ * A refusal is a rule like any other, so it can be the most specific one and beat a wider rule
+ * that shares. It is carried as a display choice here and becomes a deny reason on the way out.
+ */
+export const deny = "Deny";
+
+export function displayLabel(rule: {
+  action: string;
+  transform: string;
+  transformParameter: string | null;
+}): string {
+  if (rule.action === "Deny") {
+    return "Not shared at all";
+  }
+
+  switch (rule.transform) {
     case "Reformat":
       return "Shown as initials";
     case "Generalise":
-      return `Shown only as over or under ${parameter ?? "18"}`;
+      return `Shown only as over or under ${rule.transformParameter ?? "18"}`;
     case "Redact":
-      return "Hidden";
+      return "Hidden, but they are told it exists";
     default:
       return "Shown exactly as written";
   }

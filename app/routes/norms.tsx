@@ -109,7 +109,10 @@ export default function Norms() {
 
   return (
     <>
-      <PageHeader title="Rules" description="What each person sees when they ask about you." />
+      <PageHeader
+        title="Rules"
+        description="What each person sees when they ask about you. To change a rule, remove it and write it again."
+      />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 

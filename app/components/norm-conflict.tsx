@@ -21,7 +21,8 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
 
       <p className="mt-1 text-sm text-amber-800 dark:text-amber-300">
         Both would answer the same question with different things, and neither takes priority.
-        Make this rule narrower by choosing who can see it or what they are asking for.
+        Make one of them more specific than the other, by setting both who can see it and what
+        they are asking for, or remove the one you no longer want.
       </p>
 
       <ul className="mt-3 space-y-3">
@@ -31,7 +32,7 @@ export function NormConflict({ conflict, claims }: NormConflictProps) {
             className="border-t border-amber-200 pt-3 text-sm text-amber-900 dark:border-amber-900 dark:text-amber-200"
           >
             <p>
-              <span className="font-medium">{name(collision.existing.attributeId, claims)}</span>{" "}
+              <span className="font-medium">{name(collision.existing.attributeId, claims)}</span> is{" "}
               {who(collision.existing.relationship)}, {why(collision.existing.purpose)}.
             </p>
 

@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { Select, type Option } from "./ui/select";
 import type { AttributeResponse, CreateNormRequest } from "../lib/api/types";
-import { any, displaysFor, kindLabel, purposes } from "../lib/options";
+import { any, deny, displaysFor, kindLabel, purposes } from "../lib/options";
 
 type NormFormProps = {
   claims: AttributeResponse[];
@@ -48,8 +48,9 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       attributeId: selected.id,
       relationship: relationship === any ? null : relationship,
       purpose: purpose === any ? null : purpose,
-      transform: display === "None" ? null : display,
+      transform: display === "None" || display === deny ? null : display,
       transformParameter: display === "Generalise" ? age || "18" : null,
+      denyReason: display === deny ? "RefusedByRule" : null,
       justifyingPrinciple: String(form.get("justifyingPrinciple")).trim(),
     });
 

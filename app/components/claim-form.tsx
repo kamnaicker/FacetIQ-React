@@ -59,9 +59,9 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
       />
 
       <Select
-        label="Only for"
+        label="Never shared except for"
         name="collectedFor"
-        hint="Limit this claim to one reason. It will never be shared for any other, whatever your rules say."
+        hint="Pick a reason to keep this claim to it. Your rules cannot share it for any other reason."
         defaultValue={any}
         options={[{ value: any, label: "Any reason" }, ...purposes]}
       />

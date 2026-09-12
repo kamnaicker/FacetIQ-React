@@ -15,6 +15,21 @@ export type DisclosureResponse = {
   justifyingPrinciple: string | null;
 };
 
+/** One past decision about the caller. Never carries the value that was released. */
+export type DisclosureRecordResponse = {
+  id: string;
+  timestamp: string;
+  requester: string | null;
+  isSelf: boolean;
+  attributeKey: string;
+  purpose: string;
+  outcome: "Return" | "Transform" | "Deny";
+  denyReason: string | null;
+  transform: string | null;
+  transformParameter: string | null;
+  justifyingPrinciple: string | null;
+};
+
 export type NormResponse = {
   id: string;
   version: number;
