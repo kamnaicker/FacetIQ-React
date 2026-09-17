@@ -1,19 +1,20 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link } from "react-router";
+import { ResendConfirmation } from "../components/resend-confirmation";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
-import { register, signIn } from "../lib/api/client";
+import { register } from "../lib/api/client";
 
 export function meta() {
   return [{ title: "Register | FacetIQ" }];
 }
 
 export default function Register() {
-  const navigate = useNavigate();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
+  const [sentTo, setSentTo] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -28,9 +29,9 @@ export default function Register() {
 
     const created = await register(email, password);
 
-    if (!created.ok) {
-      setBusy(false);
+    setBusy(false);
 
+    if (!created.ok) {
       if (created.error.kind === "validation") {
         setFieldErrors(created.error.fieldErrors);
       } else {
@@ -40,18 +41,28 @@ export default function Register() {
       return;
     }
 
-    // Registering does not sign you in, so do it here rather than sending them to a second form.
-    const signedIn = await signIn(email, password);
+    setSentTo(email);
+  }
 
-    setBusy(false);
+  if (sentTo) {
+    return (
+      <main className="mx-auto max-w-sm px-6 py-16">
+        <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
+          Check your email
+        </h1>
 
-    // A new profile is empty, so the first screen is the one that fills it.
-    if (signedIn.ok) {
-      navigate("/claims");
-      return;
-    }
+        <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
+          We sent a link to {sentTo}. Open it, then sign in.
+        </p>
 
-    navigate("/sign-in");
+        <div className="mt-6 flex items-center gap-4">
+          <ResendConfirmation email={sentTo} />
+          <Link to="/sign-in" className="text-sm underline underline-offset-4">
+            Sign in
+          </Link>
+        </div>
+      </main>
+    );
   }
 
   return (

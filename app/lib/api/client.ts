@@ -73,7 +73,10 @@ async function readError(response: Response): Promise<ApiError> {
       window.dispatchEvent(new Event(sessionExpired));
     }
 
-    return { kind: "unauthorized" };
+    // Identity reports an unconfirmed email as a NotAllowed sign in.
+    const detail = await problemDetail(response);
+
+    return detail === "NotAllowed" ? { kind: "unconfirmed" } : { kind: "unauthorized" };
   }
 
   if (response.status === 403) {
@@ -95,6 +98,20 @@ async function readError(response: Response): Promise<ApiError> {
   }
 
   return { kind: "unexpected", status: response.status, message: body };
+}
+
+async function problemDetail(response: Response): Promise<string | undefined> {
+  const text = await response.text();
+
+  if (!text) {
+    return undefined;
+  }
+
+  try {
+    return (JSON.parse(text) as { detail?: string }).detail;
+  } catch {
+    return undefined;
+  }
 }
 
 /**
@@ -164,6 +181,13 @@ export async function signIn(email: string, password: string): Promise<Result<vo
   await request<{ id: string }>("/subject", { method: "POST" });
 
   return { ok: true, data: undefined };
+}
+
+export async function resendConfirmation(email: string): Promise<Result<void>> {
+  return request<void>("/resendConfirmationEmail", {
+    method: "POST",
+    body: JSON.stringify({ email }),
+  });
 }
 
 export function signOut(): void {
