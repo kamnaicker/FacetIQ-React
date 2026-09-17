@@ -20,7 +20,7 @@ export const links: Route.LinksFunction = () => [
   },
   {
     rel: "stylesheet",
-    href: "https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&display=swap",
+    href: "https://fonts.googleapis.com/css2?family=Public+Sans:ital,wght@0,100..900;1,100..900&display=swap",
   },
 ];
 
@@ -54,9 +54,7 @@ export default function App() {
 // hard page load.
 export function HydrateFallback() {
   return (
-    <p className="px-6 py-16 text-center text-sm text-neutral-500 dark:text-neutral-400">
-      Loading
-    </p>
+    <p className="px-6 py-16 text-center text-sm text-muted">Loading</p>
   );
 }
 
@@ -77,11 +75,11 @@ export function ErrorBoundary({ error }: Route.ErrorBoundaryProps) {
   }
 
   return (
-    <main className="pt-16 p-4 container mx-auto">
-      <h1>{message}</h1>
-      <p>{details}</p>
+    <main className="mx-auto max-w-2xl px-6 py-16">
+      <h1 className="text-2xl font-semibold tracking-tight">{message}</h1>
+      <p className="mt-2 text-sm text-muted">{details}</p>
       {stack && (
-        <pre className="w-full p-4 overflow-x-auto">
+        <pre className="mt-6 w-full overflow-x-auto rounded-md border border-line bg-surface p-4 text-xs">
           <code>{stack}</code>
         </pre>
       )}

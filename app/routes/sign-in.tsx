@@ -95,6 +95,8 @@ function messageFor(error: ApiError): string {
       return "That email and password do not match an account.";
     case "unconfirmed":
       return "Confirm your email before signing in. The link is in your inbox.";
+    case "rateLimited":
+      return "Too many attempts. Wait a few minutes and try again.";
     case "network":
       return "Could not reach the server.";
     default:

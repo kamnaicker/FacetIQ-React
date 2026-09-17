@@ -34,6 +34,8 @@ export default function Register() {
     if (!created.ok) {
       if (created.error.kind === "validation") {
         setFieldErrors(created.error.fieldErrors);
+      } else if (created.error.kind === "rateLimited") {
+        setError("Too many attempts. Wait a few minutes and try again.");
       } else {
         setError("Could not create the account.");
       }

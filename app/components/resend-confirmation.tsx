@@ -19,6 +19,11 @@ export function ResendConfirmation({ email }: { email: string }) {
       return;
     }
 
+    if (result.error.kind === "rateLimited") {
+      notify("warning", "Too many attempts. Wait a few minutes and try again.");
+      return;
+    }
+
     notify("error", "The link was not sent. Try again.");
   }
 

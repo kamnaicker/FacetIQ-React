@@ -116,6 +116,7 @@ export type ApiError =
   | { kind: "unauthorized" }
   | { kind: "unconfirmed" }
   | { kind: "forbidden" }
+  | { kind: "rateLimited" }
   | { kind: "network" }
   | { kind: "unexpected"; status: number; message: string };
 

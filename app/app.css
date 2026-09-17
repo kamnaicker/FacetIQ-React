@@ -1,15 +1,71 @@
 @import "tailwindcss";
 
-@theme {
-  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif,
-    "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+/* Semantic names rather than colour names, so a screen says what a thing is and the palette
+   changes in one place. Each is redefined for dark below. */
+:root {
+  --paper: #f5f7f6;
+  --surface: #ffffff;
+  --raised: #eef2f0;
+  --ink: #1c2b2e;
+  --muted: #56676b;
+  --line: #d8dedc;
+  --shared: #0e5e5a;
+  --shared-ink: #ffffff;
+  --shared-soft: #e3efec;
+  --withheld: #8a5310;
+  --withheld-soft: #f6ebdc;
+  --danger: #a32a22;
+  --danger-soft: #fbeae8;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    color-scheme: dark;
+
+    --paper: #111a1b;
+    --surface: #172223;
+    --raised: #1e2b2c;
+    --ink: #e4eae8;
+    --muted: #9aabae;
+    --line: #2a3638;
+    --shared: #5fb8b0;
+    --shared-ink: #0b1718;
+    --shared-soft: #1b3230;
+    --withheld: #d9a55a;
+    --withheld-soft: #33281a;
+    --danger: #f19a92;
+    --danger-soft: #3a1f1d;
+  }
+}
+
+@theme inline {
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-shared: var(--shared);
+  --color-shared-ink: var(--shared-ink);
+  --color-shared-soft: var(--shared-soft);
+  --color-withheld: var(--withheld);
+  --color-withheld-soft: var(--withheld-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  /* Reading sizes for a text heavy tool: 13 for meta, 15 for body, 28 for page titles. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.125rem;
 }
 
 html,
 body {
-  @apply bg-white dark:bg-gray-950;
-
-  @media (prefers-color-scheme: dark) {
-    color-scheme: dark;
-  }
+  @apply bg-paper text-ink antialiased;
 }

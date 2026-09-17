@@ -83,6 +83,11 @@ async function readError(response: Response): Promise<ApiError> {
     return { kind: "forbidden" };
   }
 
+  // The API limits how often one client can ask for account emails.
+  if (response.status === 429) {
+    return { kind: "rateLimited" };
+  }
+
   const body = await response.text();
 
   // Left raw: the function that made the call knows which kind of conflict it can be.
