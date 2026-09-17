@@ -1,4 +1,5 @@
 import type { DisclosureResponse } from "../lib/api/types";
+import { Value } from "./ui/value";
 
 // Outcomes and reasons arrive as the API's names. They are turned into sentences here, and only
 // here, so the words a person reads never depend on what the engine calls things.
@@ -14,12 +15,12 @@ export function DisclosureResult({ result }: { result: DisclosureResponse }) {
   return (
     <section
       aria-live="polite"
-      className="mt-8 rounded-md border border-neutral-200 px-4 py-4 dark:border-neutral-800"
+      className="mt-8 max-w-sm rounded-lg border border-line bg-surface px-5 py-5"
     >
       <Body result={result} />
 
       {result.justifyingPrinciple !== null && (
-        <p className="mt-3 text-sm text-neutral-500 dark:text-neutral-400">
+        <p className="mt-4 border-t border-line pt-3 text-sm text-muted">
           In their words: {result.justifyingPrinciple}
         </p>
       )}
@@ -34,7 +35,7 @@ function Body({ result }: { result: DisclosureResponse }) {
     ) : (
       <>
         <Headline>Your own claims, every one of them.</Headline>
-        <ul className="mt-2 space-y-1 text-lg text-neutral-900 dark:text-neutral-100">
+        <ul className="mt-3 space-y-1 text-xl text-ink">
           {result.values.map((value) => (
             <li key={value}>{value}</li>
           ))}
@@ -46,8 +47,8 @@ function Body({ result }: { result: DisclosureResponse }) {
   if (result.outcome === "Deny") {
     return (
       <>
-        <Headline>Nothing shared.</Headline>
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <Headline tone="withheld">Nothing shared</Headline>
+        <p className="mt-3 text-sm text-muted">
           {refusals[result.denyReason ?? ""] ?? "Their rules do not allow it."}
         </p>
       </>
@@ -56,12 +57,12 @@ function Body({ result }: { result: DisclosureResponse }) {
 
   return (
     <>
-      <Headline>
-        {result.outcome === "Transform" ? "Shared in a reduced form." : "Shared as they hold it."}
+      <Headline tone={result.outcome === "Transform" ? "withheld" : "shared"}>
+        {result.outcome === "Transform" ? "Shared in a reduced form" : "Shared as they hold it"}
       </Headline>
-      <p className="mt-2 text-lg text-neutral-900 dark:text-neutral-100">{result.value}</p>
+      <p className="mt-3 text-xl text-ink">{result.value}</p>
       {result.outcome === "Transform" && (
-        <p className="mt-1 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-2 text-sm text-muted">
           Their rule shares only this much for this reason, never the exact detail.
         </p>
       )}
@@ -69,6 +70,16 @@ function Body({ result }: { result: DisclosureResponse }) {
   );
 }
 
-function Headline({ children }: { children: React.ReactNode }) {
-  return <h2 className="text-sm font-semibold text-neutral-900 dark:text-neutral-100">{children}</h2>;
+type HeadlineProps = { children: React.ReactNode; tone?: "shared" | "withheld" };
+
+function Headline({ children, tone }: HeadlineProps) {
+  if (!tone) {
+    return <h2 className="text-sm font-medium text-ink">{children}</h2>;
+  }
+
+  return (
+    <h2 className="text-sm font-medium">
+      <Value tone={tone}>{children}</Value>
+    </h2>
+  );
 }

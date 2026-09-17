@@ -126,9 +126,7 @@ export default function Norms() {
             <NormList norms={norms} claims={claims} onRemove={handleRemove} />
           </div>
 
-          <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Write a rule
-          </h2>
+          <h2 className="mt-10 text-base font-medium text-ink">Write a rule</h2>
 
           {conflict && (
             <div className="mt-4">

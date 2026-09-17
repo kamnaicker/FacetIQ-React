@@ -1,5 +1,6 @@
 import { Link, redirect } from "react-router";
 import { DisclosureExample } from "../components/disclosure-example";
+import { ThemeToggle } from "../components/ui/theme-toggle";
 import { isSignedIn } from "../lib/api/client";
 
 // Someone already signed in has no use for the sign-in links.
@@ -22,7 +23,11 @@ export default function Home() {
   return (
     <main className="mx-auto grid max-w-4xl gap-12 px-6 py-16 md:min-h-screen md:grid-cols-2 md:content-center md:items-center md:py-24">
       <div>
-        <p className="text-base font-semibold tracking-tight text-ink">FacetIQ</p>
+        <div className="flex items-center justify-between gap-4">
+          <p className="text-base font-semibold tracking-tight text-ink">FacetIQ</p>
+
+          <ThemeToggle />
+        </div>
 
         <h1 className="mt-8 max-w-prose text-2xl font-semibold tracking-tight text-balance text-ink">
           Decide what each person sees about you.

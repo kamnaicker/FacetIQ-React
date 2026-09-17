@@ -1,5 +1,6 @@
 import { ConfirmButton } from "./ui/confirm-button";
 import { List, ListItem } from "./ui/list";
+import { Value } from "./ui/value";
 import type { AttributeResponse, NormResponse } from "../lib/api/types";
 import { displayLabel, kindLabel } from "../lib/options";
 
@@ -14,9 +15,7 @@ type NormListProps = {
 export function NormList({ norms, claims, onRemove }: NormListProps) {
   if (norms.length === 0) {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        No rules yet, so nobody else can see anything about you.
-      </p>
+      <p className="text-sm text-muted">No rules yet, so nobody else can see anything about you.</p>
     );
   }
 
@@ -28,29 +27,52 @@ export function NormList({ norms, claims, onRemove }: NormListProps) {
     <div className="space-y-6">
       {groups.map(({ claim, rules }) => (
         <section key={claim.id}>
-          <h3 className="text-sm font-medium text-neutral-900 dark:text-neutral-100">
-            {describe(claim)}
-          </h3>
+          <h3 className="text-sm font-medium text-ink">{describe(claim)}</h3>
 
           <List className="mt-2">
-            {rules.map((norm) => (
+            {rules.map((norm) => {
+              const tone = norm.action === "Deny" ? "withheld" : "shared";
+
+              return (
               <ListItem key={`${norm.id}-${norm.version}`} className="items-start gap-4">
                 <div className="flex-1">
-                  <p className="text-sm text-neutral-900 dark:text-neutral-100">
-                    {norm.action === "Deny" ? "Not " : ""}
-                    {norm.action === "Deny" ? who(norm.relationship) : capitalise(who(norm.relationship))},{" "}
-                    {why(norm.purpose)}.
+                  <p className="text-sm text-ink">
+                    {norm.action === "Deny" ? "Not shared with " : "Shared with "}
+                    {norm.relationship ? (
+                      <>
+                        people you have described as <Value tone={tone}>{norm.relationship}</Value>
+                      </>
+                    ) : (
+                      <Value tone={tone}>anyone</Value>
+                    )}
+                    ,{" "}
+                    {norm.purpose ? (
+                      <>
+                        when they ask for <Value tone={tone}>{norm.purpose.toLowerCase()}</Value>{" "}
+                        reasons
+                      </>
+                    ) : (
+                      <>
+                        for <Value tone={tone}>any reason</Value>
+                      </>
+                    )}
+                    .
                   </p>
 
-                  <p className="mt-1 text-sm text-neutral-500 dark:text-neutral-400">
-                    {norm.action === "Deny" ? "" : `${displayLabel(norm)}. `}
+                  <p className="mt-1.5 text-sm text-muted">
+                    {norm.action !== "Deny" && (
+                      <>
+                        <Value>{displayLabel(norm)}</Value>{" "}
+                      </>
+                    )}
                     {norm.justifyingPrinciple}
                   </p>
                 </div>
 
                 <ConfirmButton label="Remove" confirmLabel="Remove rule" onConfirm={() => onRemove(norm)} />
               </ListItem>
-            ))}
+              );
+            })}
           </List>
         </section>
       ))}
@@ -60,10 +82,6 @@ export function NormList({ norms, claims, onRemove }: NormListProps) {
 
 function describe(claim: AttributeResponse): string {
   return claim.key === "name" ? claim.value : `${kindLabel(claim.key)}: ${claim.value}`;
-}
-
-function capitalise(sentence: string): string {
-  return sentence.charAt(0).toUpperCase() + sentence.slice(1);
 }
 
 export function who(relationship: string | null): string {

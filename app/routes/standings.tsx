@@ -5,6 +5,7 @@ import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { List, ListItem } from "../components/ui/list";
 import { PageHeader } from "../components/ui/page-header";
+import { Value } from "../components/ui/value";
 import { useNotify } from "../components/ui/toast";
 import { acceptStanding, issueStanding, listStandings } from "../lib/api/client";
 import type { StandingResponse } from "../lib/api/types";
@@ -103,27 +104,21 @@ export default function Standings() {
         </div>
       ) : (
         <>
-          <h2 className="mt-8 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            How others describe you
-          </h2>
+          <h2 className="mt-10 text-base font-medium text-ink">How others describe you</h2>
 
           <div className="mt-3">
             {held.length === 0 ? (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                Nobody has added you yet.
-              </p>
+              <p className="text-sm text-muted">Nobody has added you yet.</p>
             ) : (
               <List>
                 {held.map((standing) => (
                   <ListItem key={standing.id}>
-                    <span className="text-sm text-neutral-900 dark:text-neutral-100">
-                      {standing.issuer} calls you their {standing.value}
+                    <span className="text-sm text-ink">
+                      {standing.issuer} calls you their <Value>{standing.value}</Value>
                     </span>
 
                     {standing.acceptedAt ? (
-                      <span className="ml-auto text-sm text-neutral-500 dark:text-neutral-400">
-                        Confirmed
-                      </span>
+                      <span className="ml-auto text-sm text-muted">Confirmed</span>
                     ) : (
                       <Button
                         type="button"
@@ -139,26 +134,23 @@ export default function Standings() {
             )}
           </div>
 
-          <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Who others are to you
-          </h2>
+          <h2 className="mt-10 text-base font-medium text-ink">Who others are to you</h2>
 
           <div className="mt-3">
             {issued.length === 0 ? (
-              <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                You have not added anyone yet.
-              </p>
+              <p className="text-sm text-muted">You have not added anyone yet.</p>
             ) : (
               <List>
                 {issued.map((standing) => (
                   <ListItem key={standing.id}>
-                    <span className="text-sm text-neutral-900 dark:text-neutral-100">
+                    <span className="text-sm text-ink">
                       {standing.issuerKind === "Institution"
-                        ? `${standing.issuer} says ${standing.holder} is your ${standing.value}`
-                        : `${standing.holder} is your ${standing.value}`}
+                        ? `${standing.issuer} says ${standing.holder} is your `
+                        : `${standing.holder} is your `}
+                      <Value>{standing.value}</Value>
                     </span>
 
-                    <span className="ml-auto text-sm text-neutral-500 dark:text-neutral-400">
+                    <span className="ml-auto text-sm text-muted">
                       {standing.acceptedAt ? "Confirmed" : "Waiting for them to confirm"}
                     </span>
                   </ListItem>
@@ -167,9 +159,7 @@ export default function Standings() {
             )}
           </div>
 
-          <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Add someone
-          </h2>
+          <h2 className="mt-10 text-base font-medium text-ink">Add someone</h2>
 
           <form onSubmit={handleIssue} className="mt-4 max-w-sm space-y-4">
             <Field

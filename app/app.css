@@ -1,40 +1,43 @@
 @import "tailwindcss";
 
 /* Semantic names rather than colour names, so a screen says what a thing is and the palette
-   changes in one place. Each is redefined for dark below. */
+   changes in one place. Each pair is light then dark, picked by color-scheme below. */
 :root {
-  --paper: #f5f7f6;
-  --surface: #ffffff;
-  --raised: #eef2f0;
-  --ink: #1c2b2e;
-  --muted: #56676b;
-  --line: #d8dedc;
-  --shared: #0e5e5a;
-  --shared-ink: #ffffff;
-  --shared-soft: #e3efec;
-  --withheld: #8a5310;
-  --withheld-soft: #f6ebdc;
-  --danger: #a32a22;
-  --danger-soft: #fbeae8;
+  color-scheme: light dark;
+
+  --paper: light-dark(#f5f7f6, #111a1b);
+  --surface: light-dark(#ffffff, #172223);
+  --raised: light-dark(#eef2f0, #1e2b2c);
+  --ink: light-dark(#1c2b2e, #e4eae8);
+  --muted: light-dark(#56676b, #9aabae);
+  --line: light-dark(#d8dedc, #2a3638);
+  --shared: light-dark(#0e5e5a, #5fb8b0);
+  --shared-ink: light-dark(#ffffff, #0b1718);
+  --shared-soft: light-dark(#e3efec, #1b3230);
+  --withheld: light-dark(#8a5310, #d9a55a);
+  --withheld-soft: light-dark(#f6ebdc, #33281a);
+  --danger: light-dark(#a32a22, #f19a92);
+  --danger-soft: light-dark(#fbeae8, #3a1f1d);
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    color-scheme: dark;
+/* Set by the toggle, and by the inline script before paint so a choice does not flash. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
 
-    --paper: #111a1b;
-    --surface: #172223;
-    --raised: #1e2b2c;
-    --ink: #e4eae8;
-    --muted: #9aabae;
-    --line: #2a3638;
-    --shared: #5fb8b0;
-    --shared-ink: #0b1718;
-    --shared-soft: #1b3230;
-    --withheld: #d9a55a;
-    --withheld-soft: #33281a;
-    --danger: #f19a92;
-    --danger-soft: #3a1f1d;
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Only while switching, so hover and focus stay immediate the rest of the time. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-changing],
+  :root[data-theme-changing] * {
+    transition:
+      background-color 240ms ease,
+      border-color 240ms ease,
+      color 240ms ease,
+      outline-color 240ms ease;
   }
 }
 

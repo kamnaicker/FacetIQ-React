@@ -116,9 +116,7 @@ export default function Claims() {
             <ClaimList claims={claims} onDelete={handleDelete} />
           </div>
 
-          <h2 className="mt-10 text-base font-semibold text-neutral-900 dark:text-neutral-100">
-            Add a claim
-          </h2>
+          <h2 className="mt-10 text-base font-medium text-ink">Add a claim</h2>
 
           <div className="mt-4">
             <ClaimForm fieldErrors={fieldErrors} busy={busy} onSubmit={handleSubmit} />

@@ -5,6 +5,7 @@ import { ResendConfirmation } from "../components/resend-confirmation";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
+import { ThemeToggle } from "../components/ui/theme-toggle";
 import { signIn } from "../lib/api/client";
 import type { ApiError } from "../lib/api/types";
 
@@ -47,9 +48,13 @@ export default function SignIn() {
   return (
     <main className="mx-auto grid max-w-4xl gap-12 px-6 py-16 md:min-h-screen md:grid-cols-2 md:content-center md:items-center md:py-24">
       <div>
-        <Link to="/" className="text-base font-semibold tracking-tight text-ink">
-          FacetIQ
-        </Link>
+        <div className="flex items-center justify-between gap-4">
+          <Link to="/" className="text-base font-semibold tracking-tight text-ink">
+            FacetIQ
+          </Link>
+
+          <ThemeToggle />
+        </div>
 
         <h1 className="mt-8 text-2xl font-semibold tracking-tight text-ink">Sign in</h1>
 

@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
+import { ThemeToggle } from "../components/ui/theme-toggle";
 import { useNotify } from "../components/ui/toast";
 import { currentAccount, isSignedIn, sessionExpired, signOut } from "../lib/api/client";
 
@@ -73,15 +74,17 @@ export default function Protected() {
       {/* A column on a desktop, a bar above the content on a phone. */}
       <header className="border-b border-line bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-60 md:shrink-0 md:flex-col md:border-r md:border-b-0">
         <div className="px-4 py-3 md:px-4 md:py-5">
-          <div className="flex items-center gap-4 px-2 md:block md:px-0">
-            <Link to="/claims" className="text-base font-semibold tracking-tight text-ink md:px-3">
+          <div className="flex items-center gap-4 px-2 md:px-3">
+            <Link to="/claims" className="text-base font-semibold tracking-tight text-ink">
               FacetIQ
             </Link>
+
+            <ThemeToggle className="ml-auto" />
 
             <button
               type="button"
               onClick={handleSignOut}
-              className="ml-auto rounded text-sm whitespace-nowrap text-muted underline underline-offset-4 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared md:hidden"
+              className="rounded text-sm whitespace-nowrap text-muted outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared md:hidden"
             >
               Sign out
             </button>
@@ -102,13 +105,13 @@ export default function Protected() {
           </nav>
         </div>
 
-        <div className="hidden border-t border-line px-7 py-4 md:mt-auto md:block">
-          {email && <p className="truncate text-xs text-muted">{email}</p>}
+        <div className="hidden border-t border-line p-4 md:mt-auto md:block">
+          {email && <p className="truncate px-3 text-xs text-muted">{email}</p>}
 
           <button
             type="button"
             onClick={handleSignOut}
-            className="mt-1 rounded text-sm text-muted underline underline-offset-4 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
+            className="mt-1 block w-full rounded-md px-3 py-1.5 text-left text-sm text-muted outline-none hover:bg-raised hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
           >
             Sign out
           </button>

@@ -24,8 +24,8 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
 
   if (!selected) {
     return (
-      <p className="text-sm text-neutral-600 dark:text-neutral-400">
-        <Link to="/claims" className="underline underline-offset-4">
+      <p className="text-sm text-muted">
+        <Link to="/claims" className="text-ink underline underline-offset-4">
           Add a claim
         </Link>{" "}
         first, then choose here who can see it.
@@ -74,10 +74,10 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       />
 
       {terms.length === 0 ? (
-        <p className="text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="text-sm text-muted">
           Anyone can see it. To limit a rule to certain people, first say who they are to you on
           the{" "}
-          <Link to="/people" className="underline underline-offset-4">
+          <Link to="/people" className="text-ink underline underline-offset-4">
             People page
           </Link>
           .
