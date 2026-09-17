@@ -14,15 +14,12 @@ export function Field({ label, name, hint, errors, ...input }: FieldProps) {
 
   return (
     <div className="space-y-1.5">
-      <label
-        htmlFor={name}
-        className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-      >
+      <label htmlFor={name} className="block text-sm font-medium text-ink">
         {label}
       </label>
 
       {hint && (
-        <p id={hintId} className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p id={hintId} className="text-xs text-muted">
           {hint}
         </p>
       )}
@@ -33,11 +30,11 @@ export function Field({ label, name, hint, errors, ...input }: FieldProps) {
         name={name}
         aria-invalid={errorId ? true : undefined}
         aria-describedby={describedBy}
-        className="w-full rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none placeholder:text-neutral-400 focus:border-neutral-500 aria-invalid:border-red-400 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100 dark:[color-scheme:dark]"
+        className="w-full rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink outline-none placeholder:text-muted/70 focus-visible:border-shared focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-shared/40 aria-invalid:border-danger"
       />
 
       {errorId && (
-        <p id={errorId} className="text-sm text-red-700 dark:text-red-400">
+        <p id={errorId} className="text-xs text-danger">
           {errors!.join(" ")}
         </p>
       )}

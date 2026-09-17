@@ -13,15 +13,29 @@ export function clientLoader() {
   return null;
 }
 
-// In the order a person sets themselves up: what they hold, who people are to them, which of
-// those people see what, and only then asking about someone else.
-const sections = [
-  { to: "/claims", label: "Claims" },
-  { to: "/people", label: "People" },
-  { to: "/norms", label: "Rules" },
-  { to: "/requests", label: "Requests" },
-  { to: "/lookup", label: "Lookup" },
+// Two groups because the app has two sides: what others see of you, and what you ask of them.
+// Within the first, the order a person sets themselves up in.
+const groups = [
+  {
+    label: "Your profile",
+    sections: [
+      { to: "/claims", label: "Claims" },
+      { to: "/people", label: "People" },
+      { to: "/norms", label: "Rules" },
+      { to: "/requests", label: "Requests" },
+    ],
+  },
+  {
+    label: "Ask someone",
+    sections: [{ to: "/lookup", label: "Lookup" }],
+  },
 ];
+
+function navClass({ isActive }: { isActive: boolean }): string {
+  return isActive
+    ? "block rounded-md bg-shared-soft px-3 py-1.5 text-sm font-medium text-shared"
+    : "block rounded-md px-3 py-1.5 text-sm text-muted hover:bg-raised hover:text-ink";
+}
 
 export default function Protected() {
   const navigate = useNavigate();
@@ -48,52 +62,60 @@ export default function Protected() {
     return () => window.removeEventListener(sessionExpired, onExpired);
   }, [navigate, notify]);
 
+  function handleSignOut() {
+    signOut();
+    notify("success", "Signed out.");
+    navigate("/sign-in");
+  }
+
   return (
-    <div className="min-h-screen">
-      <header className="border-b border-neutral-200 dark:border-neutral-800">
-        <div className="mx-auto flex max-w-3xl items-center gap-6 px-6 py-3">
-          <Link
-            to="/claims"
-            className="text-sm font-semibold tracking-tight text-neutral-900 dark:text-neutral-100"
-          >
-            FacetIQ
-          </Link>
-
-          <nav className="flex gap-4 text-sm text-neutral-600 dark:text-neutral-400">
-            {sections.map((section) => (
-              <NavLink
-                key={section.to}
-                to={section.to}
-                className={({ isActive }) =>
-                  isActive ? "text-neutral-900 dark:text-neutral-100" : undefined
-                }
-              >
-                {section.label}
-              </NavLink>
-            ))}
-          </nav>
-
-          <div className="ml-auto flex items-center gap-4 text-sm">
-            {email && (
-              <span className="hidden text-neutral-500 sm:inline dark:text-neutral-400">{email}</span>
-            )}
+    <div className="min-h-screen md:flex">
+      {/* A column on a desktop, a bar above the content on a phone. */}
+      <header className="border-b border-line bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-60 md:shrink-0 md:flex-col md:border-r md:border-b-0">
+        <div className="px-4 py-3 md:px-4 md:py-5">
+          <div className="flex items-center gap-4 px-2 md:block md:px-0">
+            <Link to="/claims" className="text-base font-semibold tracking-tight text-ink md:px-3">
+              FacetIQ
+            </Link>
 
             <button
               type="button"
-              onClick={() => {
-                signOut();
-                notify("success", "Signed out.");
-                navigate("/sign-in");
-              }}
-              className="text-neutral-600 underline underline-offset-4 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+              onClick={handleSignOut}
+              className="ml-auto rounded text-sm whitespace-nowrap text-muted underline underline-offset-4 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared md:hidden"
             >
               Sign out
             </button>
           </div>
+
+          <nav className="mt-2 flex flex-wrap gap-1 md:mt-6 md:block md:space-y-6">
+            {groups.map((group) => (
+              <div key={group.label} className="flex flex-wrap gap-1 md:block">
+                <p className="hidden px-3 pb-1 text-xs text-muted md:block">{group.label}</p>
+
+                {group.sections.map((section) => (
+                  <NavLink key={section.to} to={section.to} className={navClass}>
+                    {section.label}
+                  </NavLink>
+                ))}
+              </div>
+            ))}
+          </nav>
+        </div>
+
+        <div className="hidden border-t border-line px-7 py-4 md:mt-auto md:block">
+          {email && <p className="truncate text-xs text-muted">{email}</p>}
+
+          <button
+            type="button"
+            onClick={handleSignOut}
+            className="mt-1 rounded text-sm text-muted underline underline-offset-4 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
+          >
+            Sign out
+          </button>
         </div>
       </header>
 
-      <main className="mx-auto max-w-3xl px-6 py-10">
+      <main className="w-full max-w-3xl px-6 py-10 md:px-10 md:py-14">
         <Outlet />
       </main>
     </div>

@@ -5,7 +5,7 @@ export function List({ className = "", ...list }: HTMLAttributes<HTMLUListElemen
   return (
     <ul
       {...list}
-      className={`divide-y divide-neutral-200 rounded-md border border-neutral-200 dark:divide-neutral-800 dark:border-neutral-800 ${className}`}
+      className={`divide-y divide-line overflow-hidden rounded-lg border border-line bg-surface ${className}`}
     />
   );
 }
@@ -14,7 +14,7 @@ export function ListItem({ className = "", ...item }: LiHTMLAttributes<HTMLLIEle
   return (
     <li
       {...item}
-      className={`flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3 ${className}`}
+      className={`flex flex-wrap items-center gap-x-3 gap-y-1 px-4 py-3.5 ${className}`}
     />
   );
 }

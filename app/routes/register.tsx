@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link } from "react-router";
+import { DisclosureExample } from "../components/disclosure-example";
 import { ResendConfirmation } from "../components/resend-confirmation";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
@@ -48,18 +49,16 @@ export default function Register() {
 
   if (sentTo) {
     return (
-      <main className="mx-auto max-w-sm px-6 py-16">
-        <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-          Check your email
-        </h1>
+      <main className="mx-auto max-w-sm px-6 py-16 md:py-24">
+        <h1 className="text-2xl font-semibold tracking-tight text-ink">Check your email</h1>
 
-        <p className="mt-4 text-sm text-neutral-600 dark:text-neutral-400">
+        <p className="mt-4 text-sm text-muted">
           We sent a link to {sentTo}. Open it, then sign in.
         </p>
 
         <div className="mt-6 flex items-center gap-4">
           <ResendConfirmation email={sentTo} />
-          <Link to="/sign-in" className="text-sm underline underline-offset-4">
+          <Link to="/sign-in" className="text-sm text-ink underline underline-offset-4">
             Sign in
           </Link>
         </div>
@@ -68,45 +67,51 @@ export default function Register() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-16">
-      <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-        Register
-      </h1>
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        {error && <Alert>{error}</Alert>}
-
-        <Field
-          label="Email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="name@example.com"
-          hint="Others use this to ask you for details or to add you."
-          required
-          errors={fieldErrors.email}
-        />
-        <Field
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="new-password"
-          hint="At least 6 characters, with an upper and lower case letter, a number and a symbol."
-          required
-          errors={fieldErrors.password}
-        />
-
-        <Button type="submit" disabled={busy}>
-          {busy ? "Creating account" : "Create account"}
-        </Button>
-      </form>
-
-      <p className="mt-6 text-sm text-neutral-600 dark:text-neutral-400">
-        Already registered?{" "}
-        <Link to="/sign-in" className="underline underline-offset-4">
-          Sign in
+    <main className="mx-auto grid max-w-4xl gap-12 px-6 py-16 md:min-h-screen md:grid-cols-2 md:content-center md:items-center md:py-24">
+      <div>
+        <Link to="/" className="text-base font-semibold tracking-tight text-ink">
+          FacetIQ
         </Link>
-      </p>
+
+        <h1 className="mt-8 text-2xl font-semibold tracking-tight text-ink">Register</h1>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {error && <Alert>{error}</Alert>}
+
+          <Field
+            label="Email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="name@example.com"
+            hint="Others use this to ask you for details or to add you."
+            required
+            errors={fieldErrors.email}
+          />
+          <Field
+            label="Password"
+            name="password"
+            type="password"
+            autoComplete="new-password"
+            hint="At least 6 characters, with an upper and lower case letter, a number and a symbol."
+            required
+            errors={fieldErrors.password}
+          />
+
+          <Button type="submit" disabled={busy}>
+            {busy ? "Creating account" : "Create account"}
+          </Button>
+        </form>
+
+        <p className="mt-6 text-sm text-muted">
+          Already registered?{" "}
+          <Link to="/sign-in" className="text-ink underline underline-offset-4">
+            Sign in
+          </Link>
+        </p>
+      </div>
+
+      <DisclosureExample />
     </main>
   );
 }

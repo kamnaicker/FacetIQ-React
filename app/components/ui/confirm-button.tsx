@@ -16,7 +16,7 @@ export function ConfirmButton({ label, confirmLabel, onConfirm }: ConfirmButtonP
       <button
         type="button"
         onClick={() => setAsking(true)}
-        className="text-sm text-neutral-500 underline underline-offset-4 hover:text-neutral-900 dark:text-neutral-400 dark:hover:text-neutral-100"
+        className="rounded text-sm text-muted underline underline-offset-4 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
       >
         {label}
       </button>
@@ -34,14 +34,14 @@ export function ConfirmButton({ label, confirmLabel, onConfirm }: ConfirmButtonP
           setBusy(false);
           setAsking(false);
         }}
-        className="font-medium text-red-700 underline underline-offset-4 disabled:opacity-50 dark:text-red-400"
+        className="rounded font-medium text-danger underline underline-offset-4 outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-danger disabled:opacity-50"
       >
         {confirmLabel}
       </button>
       <button
         type="button"
         onClick={() => setAsking(false)}
-        className="text-neutral-500 underline underline-offset-4 dark:text-neutral-400"
+        className="rounded text-muted underline underline-offset-4 outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
       >
         Cancel
       </button>

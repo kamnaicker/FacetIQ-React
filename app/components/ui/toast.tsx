@@ -6,9 +6,9 @@ type Tone = "success" | "error" | "warning";
 type Notice = { id: number; tone: Tone; message: string };
 
 const tones: Record<Tone, string> = {
-  success: "border-l-emerald-600",
-  error: "border-l-red-600",
-  warning: "border-l-amber-500",
+  success: "border-l-shared",
+  error: "border-l-danger",
+  warning: "border-l-withheld",
 };
 
 const NotifyContext = createContext<(tone: Tone, message: string) => void>(() => {});
@@ -35,12 +35,12 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             key={notice.id}
             type={notice.tone === "error" ? "foreground" : "background"}
             onOpenChange={(open) => !open && dismiss(notice.id)}
-            className={`flex items-start gap-3 rounded-md border border-l-4 border-neutral-200 bg-white px-4 py-3 text-sm text-neutral-900 dark:border-neutral-800 dark:bg-neutral-900 dark:text-neutral-100 ${tones[notice.tone]}`}
+            className={`flex items-start gap-3 rounded-md border border-l-4 border-line bg-surface px-4 py-3 text-sm text-ink shadow-lg shadow-ink/5 ${tones[notice.tone]}`}
           >
             <RadixToast.Description className="flex-1">{notice.message}</RadixToast.Description>
             <RadixToast.Close
               aria-label="Dismiss"
-              className="text-neutral-500 hover:text-neutral-900 dark:hover:text-neutral-100"
+              className="rounded text-muted outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
                 <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

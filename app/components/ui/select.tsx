@@ -20,15 +20,12 @@ export function Select({ label, name, options, hint, defaultValue, value, onValu
 
   return (
     <div className="space-y-1.5">
-      <span
-        id={labelId}
-        className="block text-sm font-medium text-neutral-700 dark:text-neutral-300"
-      >
+      <span id={labelId} className="block text-sm font-medium text-ink">
         {label}
       </span>
 
       {hint && (
-        <p id={hintId} className="text-sm text-neutral-500 dark:text-neutral-400">
+        <p id={hintId} className="text-xs text-muted">
           {hint}
         </p>
       )}
@@ -42,10 +39,10 @@ export function Select({ label, name, options, hint, defaultValue, value, onValu
         <RadixSelect.Trigger
           aria-labelledby={labelId}
           aria-describedby={hintId}
-          className="flex w-full items-center justify-between rounded-md border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-900 outline-none focus:border-neutral-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-100"
+          className="flex w-full items-center justify-between rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus-visible:border-shared focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-shared/40"
         >
           <RadixSelect.Value />
-          <RadixSelect.Icon>
+          <RadixSelect.Icon className="text-muted">
             <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
               <path
                 d="M3 4.5 6 7.5 9 4.5"
@@ -62,14 +59,14 @@ export function Select({ label, name, options, hint, defaultValue, value, onValu
           <RadixSelect.Content
             position="popper"
             sideOffset={4}
-            className="w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-neutral-200 bg-white dark:border-neutral-700 dark:bg-neutral-900"
+            className="w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-line bg-surface shadow-lg shadow-ink/5"
           >
             <RadixSelect.Viewport className="p-1">
               {options.map((option) => (
                 <RadixSelect.Item
                   key={option.value}
                   value={option.value}
-                  className="cursor-default rounded px-2 py-1.5 text-sm text-neutral-900 outline-none data-[highlighted]:bg-neutral-100 dark:text-neutral-100 dark:data-[highlighted]:bg-neutral-800"
+                  className="cursor-default rounded px-2 py-1.5 text-sm text-ink outline-none data-[highlighted]:bg-raised data-[state=checked]:font-medium data-[state=checked]:text-shared"
                 >
                   <RadixSelect.ItemText>{option.label}</RadixSelect.ItemText>
                 </RadixSelect.Item>

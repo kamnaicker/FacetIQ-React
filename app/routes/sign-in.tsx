@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router";
+import { DisclosureExample } from "../components/disclosure-example";
 import { ResendConfirmation } from "../components/resend-confirmation";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
@@ -44,47 +45,53 @@ export default function SignIn() {
   }
 
   return (
-    <main className="mx-auto max-w-sm px-6 py-16">
-      <h1 className="text-xl font-semibold tracking-tight text-neutral-900 dark:text-neutral-100">
-        Sign in
-      </h1>
-
-      <form onSubmit={handleSubmit} className="mt-6 space-y-4">
-        {error && <Alert>{error}</Alert>}
-
-        <Field
-          label="Email"
-          name="email"
-          type="email"
-          autoComplete="email"
-          placeholder="name@example.com"
-          required
-        />
-        <Field
-          label="Password"
-          name="password"
-          type="password"
-          autoComplete="current-password"
-          required
-        />
-
-        <Button type="submit" disabled={busy}>
-          {busy ? "Signing in" : "Sign in"}
-        </Button>
-      </form>
-
-      {unconfirmed && (
-        <div className="mt-4">
-          <ResendConfirmation email={unconfirmed} />
-        </div>
-      )}
-
-      <p className="mt-6 text-sm text-neutral-600 dark:text-neutral-400">
-        No account?{" "}
-        <Link to="/register" className="underline underline-offset-4">
-          Register
+    <main className="mx-auto grid max-w-4xl gap-12 px-6 py-16 md:min-h-screen md:grid-cols-2 md:content-center md:items-center md:py-24">
+      <div>
+        <Link to="/" className="text-base font-semibold tracking-tight text-ink">
+          FacetIQ
         </Link>
-      </p>
+
+        <h1 className="mt-8 text-2xl font-semibold tracking-tight text-ink">Sign in</h1>
+
+        <form onSubmit={handleSubmit} className="mt-6 space-y-4">
+          {error && <Alert>{error}</Alert>}
+
+          <Field
+            label="Email"
+            name="email"
+            type="email"
+            autoComplete="email"
+            placeholder="name@example.com"
+            required
+          />
+          <Field
+            label="Password"
+            name="password"
+            type="password"
+            autoComplete="current-password"
+            required
+          />
+
+          <Button type="submit" disabled={busy}>
+            {busy ? "Signing in" : "Sign in"}
+          </Button>
+        </form>
+
+        {unconfirmed && (
+          <div className="mt-4">
+            <ResendConfirmation email={unconfirmed} />
+          </div>
+        )}
+
+        <p className="mt-6 text-sm text-muted">
+          No account?{" "}
+          <Link to="/register" className="text-ink underline underline-offset-4">
+            Register
+          </Link>
+        </p>
+      </div>
+
+      <DisclosureExample />
     </main>
   );
 }
