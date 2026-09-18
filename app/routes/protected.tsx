@@ -34,8 +34,8 @@ const groups = [
 
 function navClass({ isActive }: { isActive: boolean }): string {
   return isActive
-    ? "block rounded-md bg-shared-soft px-3 py-1.5 text-sm font-medium text-shared"
-    : "block rounded-md px-3 py-1.5 text-sm text-muted hover:bg-raised hover:text-ink";
+    ? "focus-ring block rounded-md bg-shared-soft px-3 py-1.5 text-sm font-medium text-shared"
+    : "focus-ring block rounded-md px-3 py-1.5 text-sm text-muted hover:bg-raised hover:text-ink";
 }
 
 export default function Protected() {
@@ -75,7 +75,7 @@ export default function Protected() {
       <header className="border-b border-line bg-surface md:sticky md:top-0 md:flex md:h-screen md:w-60 md:shrink-0 md:flex-col md:border-r md:border-b-0">
         <div className="px-4 py-3 md:px-4 md:py-5">
           <div className="flex items-center gap-4 px-2 md:px-3">
-            <Link to="/claims" className="text-base font-semibold tracking-tight text-ink">
+            <Link to="/" className="focus-ring rounded text-base font-semibold tracking-tight text-ink">
               FacetIQ
             </Link>
 
@@ -84,7 +84,7 @@ export default function Protected() {
             <button
               type="button"
               onClick={handleSignOut}
-              className="rounded text-sm whitespace-nowrap text-muted outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared md:hidden"
+              className="focus-ring rounded text-sm whitespace-nowrap text-muted hover:text-ink md:hidden"
             >
               Sign out
             </button>
@@ -111,7 +111,7 @@ export default function Protected() {
           <button
             type="button"
             onClick={handleSignOut}
-            className="mt-1 block w-full rounded-md px-3 py-1.5 text-left text-sm text-muted outline-none hover:bg-raised hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
+            className="focus-ring mt-1 block w-full rounded-md px-3 py-1.5 text-left text-sm text-muted hover:bg-raised hover:text-ink"
           >
             Sign out
           </button>

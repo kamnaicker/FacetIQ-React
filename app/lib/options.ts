@@ -46,6 +46,18 @@ export function displaysFor(key: string): readonly Option[] {
  */
 export const deny = "Deny";
 
+/** Who a rule covers, as the middle of a sentence. */
+export function who(relationship: string | null): string {
+  return relationship
+    ? `shared with people you have described as ${relationship}`
+    : "shared with anyone";
+}
+
+/** Which asking reasons a rule covers, as the end of a sentence. */
+export function why(purpose: string | null): string {
+  return purpose ? `when they ask for ${purpose.toLowerCase()} reasons` : "for any reason";
+}
+
 export function displayLabel(rule: {
   action: string;
   transform: string;

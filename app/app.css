@@ -72,3 +72,13 @@ html,
 body {
   @apply bg-paper text-ink antialiased;
 }
+
+/* One keyboard focus style for buttons and links. Inputs keep their own softer ring. */
+@utility focus-ring {
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--shared);
+    outline-offset: 2px;
+  }
+}

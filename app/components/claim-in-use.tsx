@@ -1,6 +1,6 @@
 import { Link } from "react-router";
 import type { AttributeResponse, NormResponse } from "../lib/api/types";
-import { who, why } from "./norm-list";
+import { who, why } from "../lib/options";
 
 type ClaimInUseProps = {
   claim: AttributeResponse;

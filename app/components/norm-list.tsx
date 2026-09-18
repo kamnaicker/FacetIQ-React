@@ -30,49 +30,20 @@ export function NormList({ norms, claims, onRemove }: NormListProps) {
           <h3 className="text-sm font-medium text-ink">{describe(claim)}</h3>
 
           <List className="mt-2">
-            {rules.map((norm) => {
-              const tone = norm.action === "Deny" ? "withheld" : "shared";
-
-              return (
+            {rules.map((norm) => (
               <ListItem key={`${norm.id}-${norm.version}`} className="items-start gap-4">
                 <div className="flex-1">
-                  <p className="text-sm text-ink">
-                    {norm.action === "Deny" ? "Not shared with " : "Shared with "}
-                    {norm.relationship ? (
-                      <>
-                        people you have described as <Value tone={tone}>{norm.relationship}</Value>
-                      </>
-                    ) : (
-                      <Value tone={tone}>anyone</Value>
-                    )}
-                    ,{" "}
-                    {norm.purpose ? (
-                      <>
-                        when they ask for <Value tone={tone}>{norm.purpose.toLowerCase()}</Value>{" "}
-                        reasons
-                      </>
-                    ) : (
-                      <>
-                        for <Value tone={tone}>any reason</Value>
-                      </>
-                    )}
-                    .
-                  </p>
+                  <RuleSentence norm={norm} />
 
                   <p className="mt-1.5 text-sm text-muted">
-                    {norm.action !== "Deny" && (
-                      <>
-                        <Value>{displayLabel(norm)}</Value>{" "}
-                      </>
-                    )}
+                    {norm.action !== "Deny" && <Value>{displayLabel(norm)}</Value>}{" "}
                     {norm.justifyingPrinciple}
                   </p>
                 </div>
 
                 <ConfirmButton label="Remove" confirmLabel="Remove rule" onConfirm={() => onRemove(norm)} />
               </ListItem>
-              );
-            })}
+            ))}
           </List>
         </section>
       ))}
@@ -80,16 +51,33 @@ export function NormList({ norms, claims, onRemove }: NormListProps) {
   );
 }
 
+// The parts that change between rules are tinted, so a list of them can be scanned.
+function RuleSentence({ norm }: { norm: NormResponse }) {
+  const tone = norm.action === "Deny" ? "withheld" : "shared";
+
+  return (
+    <p className="text-sm text-ink">
+      {norm.action === "Deny" ? "Not shared with " : "Shared with "}
+      {norm.relationship ? (
+        <>
+          people you have described as <Value tone={tone}>{norm.relationship}</Value>
+        </>
+      ) : (
+        <Value tone={tone}>anyone</Value>
+      )}
+      {norm.purpose ? (
+        <>
+          , when they ask for <Value tone={tone}>{norm.purpose.toLowerCase()}</Value> reasons.
+        </>
+      ) : (
+        <>
+          , for <Value tone={tone}>any reason</Value>.
+        </>
+      )}
+    </p>
+  );
+}
+
 function describe(claim: AttributeResponse): string {
   return claim.key === "name" ? claim.value : `${kindLabel(claim.key)}: ${claim.value}`;
-}
-
-export function who(relationship: string | null): string {
-  return relationship
-    ? `shared with people you have described as ${relationship}`
-    : "shared with anyone";
-}
-
-export function why(purpose: string | null): string {
-  return purpose ? `when they ask for ${purpose.toLowerCase()} reasons` : "for any reason";
 }

@@ -28,7 +28,7 @@ export function ThemeToggle({ className = "" }: { className?: string }) {
         id={id}
         checked={dark}
         onCheckedChange={handleChange}
-        className="h-5 w-9 rounded-full border border-line bg-raised outline-none data-[state=checked]:border-shared data-[state=checked]:bg-shared focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
+        className="focus-ring h-5 w-9 rounded-full border border-line bg-raised data-[state=checked]:border-shared data-[state=checked]:bg-shared"
       >
         <RadixSwitch.Thumb className="block size-3.5 translate-x-0.5 rounded-full bg-muted transition-transform duration-200 will-change-transform data-[state=checked]:translate-x-4 data-[state=checked]:bg-shared-ink" />
       </RadixSwitch.Root>

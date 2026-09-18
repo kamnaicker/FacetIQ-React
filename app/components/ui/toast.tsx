@@ -40,7 +40,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
             <RadixToast.Description className="flex-1">{notice.message}</RadixToast.Description>
             <RadixToast.Close
               aria-label="Dismiss"
-              className="rounded text-muted outline-none hover:text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-shared"
+              className="focus-ring rounded text-muted hover:text-ink"
             >
               <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
                 <path d="M3 3l6 6M9 3l-6 6" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

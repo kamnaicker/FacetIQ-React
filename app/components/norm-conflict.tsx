@@ -1,6 +1,5 @@
 import type { AttributeResponse, NormConflictResponse } from "../lib/api/types";
-import { kindLabel } from "../lib/options";
-import { who, why } from "./norm-list";
+import { kindLabel, who, why } from "../lib/options";
 
 type NormConflictProps = {
   conflict: NormConflictResponse;
