@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
 import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { List, ListItem } from "../components/ui/list";
 import { PageHeader } from "../components/ui/page-header";
 import { Value, type Tone } from "../components/ui/value";
-import { listHistory } from "../lib/api/client";
+import { useHistory } from "../lib/api/queries";
 import type { DisclosureRecordResponse } from "../lib/api/types";
 import { displayLabel, kindLabel } from "../lib/options";
 
@@ -13,21 +12,14 @@ export function meta() {
 }
 
 export default function History() {
-  const [records, setRecords] = useState<DisclosureRecordResponse[]>([]);
-  const [error, setError] = useState<string | null>(null);
-  const [noProfile, setNoProfile] = useState(false);
+  const { result } = useHistory();
 
-  useEffect(() => {
-    listHistory().then((result) => {
-      if (result.ok) {
-        setRecords(result.data);
-      } else if (result.error.kind === "forbidden") {
-        setNoProfile(true);
-      } else if (result.error.kind !== "unauthorized") {
-        setError("Could not load your requests.");
-      }
-    });
-  }, []);
+  const records = result?.ok ? result.data : [];
+  const noProfile = result?.ok === false && result.error.kind === "forbidden";
+  const error =
+    result?.ok === false && !noProfile && result.error.kind !== "unauthorized"
+      ? "Could not load your requests."
+      : null;
 
   return (
     <>

@@ -1,6 +1,6 @@
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { listStandings } from "./client";
-import type { Result, StandingsResponse } from "./types";
+import { listHistory, listStandings } from "./client";
+import type { DisclosureRecordResponse, Result, StandingsResponse } from "./types";
 
 // One per browser: the app is client rendered.
 export const queryClient = new QueryClient();
@@ -32,4 +32,8 @@ function useResource<T>(
 
 export function useStandings(): Resource<StandingsResponse> {
   return useResource("standings", listStandings, polled);
+}
+
+export function useHistory(): Resource<DisclosureRecordResponse[]> {
+  return useResource("history", listHistory, polled);
 }
