@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { ClaimForm } from "../components/claim-form";
 import { ClaimInUse } from "../components/claim-in-use";
 import { ClaimList } from "../components/claim-list";
@@ -6,7 +6,8 @@ import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { PageHeader } from "../components/ui/page-header";
 import { useNotify } from "../components/ui/toast";
-import { createClaim, deleteClaim, listClaims } from "../lib/api/client";
+import { createClaim, deleteClaim } from "../lib/api/client";
+import { useClaims } from "../lib/api/queries";
 import type { AttributeResponse, CreateAttributeRequest, NormResponse } from "../lib/api/types";
 
 export function meta() {
@@ -14,34 +15,15 @@ export function meta() {
 }
 
 export default function Claims() {
-  const [claims, setClaims] = useState<AttributeResponse[]>([]);
+  const { result, refresh } = useClaims();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-  const [error, setError] = useState<string | null>(null);
-  const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
   const [inUse, setInUse] = useState<{ claim: AttributeResponse; rules: NormResponse[] } | null>(null);
   const notify = useNotify();
 
-  useEffect(() => {
-    load();
-  }, []);
-
-  async function load() {
-    const result = await listClaims();
-
-    if (result.ok) {
-      setClaims(result.data);
-      setNoProfile(false);
-      return;
-    }
-
-    if (result.error.kind === "forbidden") {
-      setNoProfile(true);
-      return;
-    }
-
-    setError("Could not load your claims.");
-  }
+  const claims = result?.ok ? result.data : [];
+  const noProfile = result?.ok === false && result.error.kind === "forbidden";
+  const error = result?.ok === false && !noProfile ? "Could not load your claims." : null;
 
   async function handleSubmit(body: CreateAttributeRequest): Promise<boolean> {
     setBusy(true);
@@ -53,7 +35,7 @@ export default function Claims() {
 
     if (result.ok) {
       notify("success", `Added "${result.data.value}".`);
-      await load();
+      refresh();
       return true;
     }
 
@@ -62,7 +44,7 @@ export default function Claims() {
         setFieldErrors(result.error.fieldErrors);
         break;
       case "forbidden":
-        setNoProfile(true);
+        refresh();
         break;
       case "unauthorized":
         break;
@@ -80,7 +62,7 @@ export default function Claims() {
 
     if (result.ok) {
       notify("success", `Deleted "${claim.value}".`);
-      await load();
+      refresh();
       return;
     }
 

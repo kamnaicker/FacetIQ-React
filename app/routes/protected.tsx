@@ -1,8 +1,9 @@
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
 import { ThemeToggle } from "../components/ui/theme-toggle";
 import { useNotify } from "../components/ui/toast";
-import { currentAccount, isSignedIn, sessionExpired, signOut } from "../lib/api/client";
+import { isSignedIn, sessionExpired, signOut } from "../lib/api/client";
+import { useAccount } from "../lib/api/queries";
 
 // Runs in the browser, since the app is client rendered. The API refuses these calls anyway;
 // this only saves the round trip and keeps the signed out state out of the screens.
@@ -41,15 +42,8 @@ function navClass({ isActive }: { isActive: boolean }): string {
 export default function Protected() {
   const navigate = useNavigate();
   const notify = useNotify();
-  const [email, setEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    currentAccount().then((result) => {
-      if (result.ok) {
-        setEmail(result.data.email);
-      }
-    });
-  }, []);
+  const { result: account } = useAccount();
+  const email = account?.ok ? account.data.email : null;
 
   // A token expiring mid page would otherwise leave the screen showing a generic failure.
   useEffect(() => {

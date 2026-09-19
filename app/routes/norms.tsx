@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NormConflict } from "../components/norm-conflict";
 import { NormForm } from "../components/norm-form";
 import { NormList } from "../components/norm-list";
@@ -6,9 +6,9 @@ import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { PageHeader } from "../components/ui/page-header";
 import { useNotify } from "../components/ui/toast";
-import { createNorm, listClaims, listNorms, listStandings, removeRule } from "../lib/api/client";
+import { createNorm, removeRule } from "../lib/api/client";
+import { useClaims, useNorms, useStandings } from "../lib/api/queries";
 import type {
-  AttributeResponse,
   CreateNormRequest,
   NormConflictResponse,
   NormResponse,
@@ -19,44 +19,23 @@ export function meta() {
 }
 
 export default function Norms() {
-  const [norms, setNorms] = useState<NormResponse[]>([]);
-  const [claims, setClaims] = useState<AttributeResponse[]>([]);
-  const [terms, setTerms] = useState<string[]>([]);
+  const { result: normResult, refresh } = useNorms();
+  const { result: claimResult } = useClaims();
+  const { result: standingResult } = useStandings();
   const [conflict, setConflict] = useState<NormConflictResponse | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-  const [error, setError] = useState<string | null>(null);
-  const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
   const notify = useNotify();
 
-  useEffect(() => {
-    load();
-  }, []);
+  const norms = normResult?.ok ? normResult.data : [];
+  const claims = claimResult?.ok ? claimResult.data : [];
+  const terms = standingResult?.ok
+    ? distinctTerms(standingResult.data.issued.map((standing) => standing.value))
+    : [];
 
-  async function load() {
-    const [normResult, claimResult, standingResult] = await Promise.all([
-      listNorms(),
-      listClaims(),
-      listStandings(),
-    ]);
-
-    if (normResult.ok && claimResult.ok && standingResult.ok) {
-      setNorms(normResult.data);
-      setClaims(claimResult.data);
-      setTerms(distinctTerms(standingResult.data.issued.map((standing) => standing.value)));
-      setNoProfile(false);
-      return;
-    }
-
-    const failure = !normResult.ok ? normResult : !claimResult.ok ? claimResult : standingResult;
-
-    if (!failure.ok && failure.error.kind === "forbidden") {
-      setNoProfile(true);
-      return;
-    }
-
-    setError("Could not load your rules.");
-  }
+  const failure = [normResult, claimResult, standingResult].find((result) => result?.ok === false);
+  const noProfile = failure?.ok === false && failure.error.kind === "forbidden";
+  const error = failure && !noProfile ? "Could not load your rules." : null;
 
   async function handleSubmit(body: CreateNormRequest): Promise<boolean> {
     setBusy(true);
@@ -69,7 +48,7 @@ export default function Norms() {
 
     if (result.ok) {
       notify("success", "Rule saved.");
-      await load();
+      refresh();
       return true;
     }
 
@@ -82,7 +61,7 @@ export default function Norms() {
         setFieldErrors(result.error.fieldErrors);
         break;
       case "forbidden":
-        setNoProfile(true);
+        refresh();
         break;
       case "unauthorized":
         break;
@@ -98,7 +77,7 @@ export default function Norms() {
 
     if (result.ok) {
       notify("success", "Rule removed. It no longer applies to anyone.");
-      await load();
+      refresh();
       return;
     }
 

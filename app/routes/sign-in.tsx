@@ -5,6 +5,7 @@ import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { signIn } from "../lib/api/client";
+import { clearCache } from "../lib/api/queries";
 import type { ApiError } from "../lib/api/types";
 
 export function meta() {
@@ -32,6 +33,7 @@ export default function SignIn() {
     setBusy(false);
 
     if (result.ok) {
+      clearCache();
       navigate("/lookup");
       return;
     }

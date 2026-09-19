@@ -1,6 +1,12 @@
 import { QueryClient, useQuery } from "@tanstack/react-query";
-import { listHistory, listStandings } from "./client";
-import type { DisclosureRecordResponse, Result, StandingsResponse } from "./types";
+import { currentAccount, listClaims, listHistory, listNorms, listStandings } from "./client";
+import type {
+  AttributeResponse,
+  DisclosureRecordResponse,
+  NormResponse,
+  Result,
+  StandingsResponse,
+} from "./types";
 
 // One per browser: the app is client rendered.
 export const queryClient = new QueryClient();
@@ -38,4 +44,21 @@ export function useStandings(): Resource<StandingsResponse> {
 
 export function useHistory(): Resource<DisclosureRecordResponse[]> {
   return useResource("history", listHistory, polled);
+}
+
+export function useClaims(): Resource<AttributeResponse[]> {
+  return useResource("claims", listClaims);
+}
+
+export function useNorms(): Resource<NormResponse[]> {
+  return useResource("norms", listNorms);
+}
+
+export function useAccount(): Resource<{ email: string }> {
+  return useResource("account", currentAccount);
+}
+
+// Called on sign-in, so one account never sees another's cached data on a shared browser.
+export function clearCache(): void {
+  queryClient.clear();
 }
