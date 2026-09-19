@@ -9,6 +9,8 @@ import {
 
 import type { Route } from "./+types/root";
 import { ToastProvider } from "./components/ui/toast";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/api/queries";
 import { themeScript } from "./lib/theme";
 import "./app.css";
 
@@ -46,9 +48,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
 export default function App() {
   return (
-    <ToastProvider>
-      <Outlet />
-    </ToastProvider>
+    <QueryClientProvider client={queryClient}>
+      <ToastProvider>
+        <Outlet />
+      </ToastProvider>
+    </QueryClientProvider>
   );
 }
 

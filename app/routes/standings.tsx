@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
@@ -8,7 +8,8 @@ import { List, ListItem } from "../components/ui/list";
 import { PageHeader } from "../components/ui/page-header";
 import { Value } from "../components/ui/value";
 import { useNotify } from "../components/ui/toast";
-import { acceptStanding, issueStanding, listStandings, removeStanding } from "../lib/api/client";
+import { acceptStanding, issueStanding, removeStanding } from "../lib/api/client";
+import { useStandings } from "../lib/api/queries";
 import type { StandingResponse } from "../lib/api/types";
 
 export function meta() {
@@ -16,34 +17,15 @@ export function meta() {
 }
 
 export default function Standings() {
-  const [issued, setIssued] = useState<StandingResponse[]>([]);
-  const [held, setHeld] = useState<StandingResponse[]>([]);
+  const { result, refresh } = useStandings();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
-  const [error, setError] = useState<string | null>(null);
-  const [noProfile, setNoProfile] = useState(false);
   const [busy, setBusy] = useState(false);
   const notify = useNotify();
 
-  useEffect(() => {
-    load();
-  }, []);
-
-  async function load() {
-    const result = await listStandings();
-
-    if (result.ok) {
-      setIssued(result.data.issued);
-      setHeld(result.data.held);
-      return;
-    }
-
-    if (result.error.kind === "forbidden") {
-      setNoProfile(true);
-      return;
-    }
-
-    setError("Could not load your connections.");
-  }
+  const issued = result?.ok ? result.data.issued : [];
+  const held = result?.ok ? result.data.held : [];
+  const noProfile = result?.ok === false && result.error.kind === "forbidden";
+  const error = result?.ok === false && !noProfile ? "Could not load your connections." : null;
 
   async function handleIssue(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -65,7 +47,7 @@ export default function Standings() {
     if (result.ok) {
       element.reset();
       notify("success", `Added ${result.data.holder}. It takes effect once they confirm.`);
-      await load();
+      refresh();
       return;
     }
 
@@ -84,7 +66,7 @@ export default function Standings() {
 
     if (result.ok) {
       notify("success", `Confirmed. ${standing.issuer}'s rules now treat you as their ${standing.value}.`);
-      await load();
+      refresh();
       return;
     }
 
@@ -98,7 +80,7 @@ export default function Standings() {
 
     if (result.ok) {
       notify("success", done);
-      await load();
+      refresh();
       return;
     }
 
