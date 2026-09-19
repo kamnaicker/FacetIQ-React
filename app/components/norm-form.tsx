@@ -3,6 +3,7 @@ import { Link } from "react-router";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { Select, type Option } from "./ui/select";
+import { limits } from "../lib/api/limits";
 import type { AttributeResponse, CreateNormRequest } from "../lib/api/types";
 import { any, deny, displaysFor, kindLabel, purposes } from "../lib/options";
 
@@ -127,6 +128,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       <Field
         label="Why you are sharing it"
         name="justifyingPrinciple"
+        maxLength={limits.principle}
         required
         placeholder="Colleagues know me by my professional name."
         hint="Kept with every answer, so you can check later why something was shared."

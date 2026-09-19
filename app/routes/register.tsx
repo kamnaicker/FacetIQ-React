@@ -5,6 +5,7 @@ import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { register } from "../lib/api/client";
+import { limits } from "../lib/api/limits";
 
 export function meta() {
   return [{ title: "Register | FacetIQ" }];
@@ -76,6 +77,7 @@ export default function Register() {
           label="Email"
           name="email"
           type="email"
+          maxLength={limits.email}
           autoComplete="email"
           placeholder="name@example.com"
           hint="Others use this to ask you for details or to add you."

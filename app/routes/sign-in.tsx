@@ -5,6 +5,7 @@ import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { signIn } from "../lib/api/client";
+import { limits } from "../lib/api/limits";
 import { clearCache } from "../lib/api/queries";
 import type { ApiError } from "../lib/api/types";
 
@@ -56,6 +57,7 @@ export default function SignIn() {
           label="Email"
           name="email"
           type="email"
+          maxLength={limits.email}
           autoComplete="email"
           placeholder="name@example.com"
           required

@@ -9,6 +9,7 @@ import { PageHeader } from "../components/ui/page-header";
 import { Value } from "../components/ui/value";
 import { useNotify } from "../components/ui/toast";
 import { acceptStanding, issueStanding, removeStanding } from "../lib/api/client";
+import { limits } from "../lib/api/limits";
 import { useStandings } from "../lib/api/queries";
 import type { StandingResponse } from "../lib/api/types";
 
@@ -187,6 +188,7 @@ export default function Standings() {
               label="Their email"
               name="email"
               type="email"
+              maxLength={limits.email}
               required
               placeholder="name@example.com"
               hint="The address they use on FacetIQ. They confirm before it takes effect."
@@ -195,6 +197,7 @@ export default function Standings() {
             <Field
               label="They are your"
               name="value"
+              maxLength={limits.relationship}
               required
               placeholder="colleague"
               hint="One word your rules can use, such as colleague, friend or doctor."
