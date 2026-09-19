@@ -13,7 +13,9 @@ export type Resource<T> = {
 };
 
 // Lists another person can change. TanStack pauses polling while the tab is hidden.
-const polled = 30_000;
+// Set at build time; kept modest because the F1 host has a daily CPU quota.
+const pollSeconds = Number(import.meta.env.VITE_POLL_SECONDS);
+const polled = pollSeconds > 0 ? pollSeconds * 1000 : 10_000;
 
 function useResource<T>(
   key: string,
