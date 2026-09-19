@@ -14,9 +14,17 @@ export const purposes: readonly Option[] = [
 
 // A fixed list rather than free text: keys are compared exactly, so "Name" typed on one screen
 // would never match "name" asked for on another.
-export const kinds: readonly Option[] = [
-  { value: "name", label: "Name" },
-  { value: "dateOfBirth", label: "Date of birth" },
+// type and placeholder describe the input used to write a claim of this kind.
+export type Kind = Option & { type?: string; placeholder?: string };
+
+export const kinds: readonly Kind[] = [
+  { value: "name", label: "Name", placeholder: "Amara Nwosu" },
+  { value: "dateOfBirth", label: "Date of birth", type: "date" },
+  { value: "email", label: "Email address", type: "email", placeholder: "amara@example.com" },
+  { value: "phone", label: "Phone number", type: "tel", placeholder: "+27 82 000 0000" },
+  { value: "pronouns", label: "Pronouns", placeholder: "she/her" },
+  { value: "employer", label: "Employer", placeholder: "Groote Schuur Hospital" },
+  { value: "address", label: "Home address", placeholder: "12 Long Street, Cape Town" },
 ];
 
 export function kindLabel(key: string): string {
@@ -24,20 +32,26 @@ export function kindLabel(key: string): string {
 }
 
 // What a claim can be shown as depends on what it is. An age threshold only works on a date and
-// initials only mean something for a name, and offering either on the other kind would save a
+// initials only mean something for a name, and offering either on another kind would save a
 // rule that fails every time it is used.
 export function displaysFor(key: string): readonly Option[] {
-  const specific =
-    key === "dateOfBirth"
-      ? { value: "Generalise", label: "Only whether they are over an age" }
-      : { value: "Reformat", label: "Initials only" };
-
   return [
     { value: "None", label: "Exactly as written" },
-    specific,
+    ...specificDisplays(key),
     { value: "Redact", label: "Hidden, but they are told it exists" },
     { value: deny, label: "Not shared at all" },
   ];
+}
+
+function specificDisplays(key: string): Option[] {
+  switch (key) {
+    case "name":
+      return [{ value: "Reformat", label: "Initials only" }];
+    case "dateOfBirth":
+      return [{ value: "Generalise", label: "Only whether they are over an age" }];
+    default:
+      return [];
+  }
 }
 
 /**

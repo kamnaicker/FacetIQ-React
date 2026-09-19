@@ -96,6 +96,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
         label="When they are asking for"
         name="purpose"
         hint="The reason they give when they ask."
+        errors={fieldErrors.purpose}
         defaultValue={any}
         options={[{ value: any, label: "Any purpose" }, ...purposes]}
       />
@@ -103,6 +104,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       <Select
         label="How it is shown"
         name="transform"
+        errors={fieldErrors.transform}
         options={displaysFor(selected.key)}
         value={display}
         onValueChange={setDisplay}

@@ -13,7 +13,7 @@ type ClaimFormProps = {
 
 export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
   const [kind, setKind] = useState("name");
-  const isDate = kind === "dateOfBirth";
+  const selected = kinds.find((option) => option.value === kind) ?? kinds[0];
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -41,12 +41,12 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
 
       <Field
         key={kind}
-        label={isDate ? "Date of birth" : "Name"}
+        label={selected.label}
         name="value"
-        type={isDate ? "date" : "text"}
+        type={selected.type ?? "text"}
         required
-        placeholder={isDate ? undefined : "Amara Nwosu"}
-        hint={isDate ? undefined : "Exactly as you want it shown, in any script or spelling."}
+        placeholder={selected.placeholder}
+        hint={kind === "name" ? "Exactly as you want it shown, in any script or spelling." : undefined}
         errors={fieldErrors.value}
       />
 

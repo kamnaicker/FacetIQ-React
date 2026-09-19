@@ -7,6 +7,7 @@ type SelectProps = {
   name: string;
   options: readonly Option[];
   hint?: string;
+  errors?: string[];
   defaultValue?: string;
   value?: string;
   onValueChange?: (value: string) => void;
@@ -14,9 +15,11 @@ type SelectProps = {
 
 // Radix renders a hidden native select when given a name, so FormData picks the value up on
 // submit. Pass value and onValueChange only where another field depends on the choice.
-export function Select({ label, name, options, hint, defaultValue, value, onValueChange }: SelectProps) {
+export function Select({ label, name, options, hint, errors, defaultValue, value, onValueChange }: SelectProps) {
   const labelId = `${name}-label`;
   const hintId = hint ? `${name}-hint` : undefined;
+  const errorId = errors?.length ? `${name}-error` : undefined;
+  const describedBy = [hintId, errorId].filter(Boolean).join(" ") || undefined;
 
   return (
     <div className="space-y-1.5">
@@ -38,8 +41,9 @@ export function Select({ label, name, options, hint, defaultValue, value, onValu
       >
         <RadixSelect.Trigger
           aria-labelledby={labelId}
-          aria-describedby={hintId}
-          className="flex w-full items-center justify-between rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus-visible:border-shared focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-shared/40"
+          aria-describedby={describedBy}
+          aria-invalid={errorId ? true : undefined}
+          className="flex w-full items-center justify-between rounded-md border border-line bg-surface px-3 py-2 text-sm text-ink outline-none focus-visible:border-shared focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-shared/40 aria-invalid:border-danger"
         >
           <RadixSelect.Value />
           <RadixSelect.Icon className="text-muted">
@@ -75,6 +79,12 @@ export function Select({ label, name, options, hint, defaultValue, value, onValu
           </RadixSelect.Content>
         </RadixSelect.Portal>
       </RadixSelect.Root>
+
+      {errorId && (
+        <p id={errorId} className="text-xs text-danger">
+          {errors!.join(" ")}
+        </p>
+      )}
     </div>
   );
 }
