@@ -63,7 +63,7 @@ export function Select({ label, name, options, hint, errors, defaultValue, value
           <RadixSelect.Content
             position="popper"
             sideOffset={4}
-            className="w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-line bg-surface shadow-lg shadow-ink/5"
+            className="max-h-[min(20rem,var(--radix-select-content-available-height))] w-[var(--radix-select-trigger-width)] overflow-hidden rounded-md border border-line bg-surface shadow-lg shadow-ink/5"
           >
             <RadixSelect.Viewport className="p-1">
               {options.map((option) => (

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button } from "./ui/button";
 import { Field } from "./ui/field";
+import { PhoneField } from "./ui/phone-field";
 import { Select } from "./ui/select";
 import type { CreateAttributeRequest } from "../lib/api/types";
 import { any, kinds, purposes } from "../lib/options";
@@ -13,6 +14,7 @@ type ClaimFormProps = {
 
 export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
   const [kind, setKind] = useState("name");
+  const [saves, setSaves] = useState(0);
   const selected = kinds.find((option) => option.value === kind) ?? kinds[0];
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
@@ -32,6 +34,7 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
 
     if (saved) {
       element.reset();
+      setSaves(saves + 1);
     }
   }
 
@@ -39,16 +42,27 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
     <form onSubmit={handleSubmit} className="max-w-sm space-y-5">
       <Select label="Kind" name="key" options={kinds} value={kind} onValueChange={setKind} />
 
-      <Field
-        key={kind}
-        label={selected.label}
-        name="value"
-        type={selected.type ?? "text"}
-        required
-        placeholder={selected.placeholder}
-        hint={kind === "name" ? "Exactly as you want it shown, in any script or spelling." : undefined}
-        errors={fieldErrors.value}
-      />
+      {/* Remounted after each save so the phone number clears with the rest of the form. */}
+      {kind === "phone" ? (
+        <PhoneField
+          key={`${kind}-${saves}`}
+          label={selected.label}
+          name="value"
+          defaultCountry="ZA"
+          errors={fieldErrors.value}
+        />
+      ) : (
+        <Field
+          key={kind}
+          label={selected.label}
+          name="value"
+          type={selected.type ?? "text"}
+          required
+          placeholder={selected.placeholder}
+          hint={kind === "name" ? "Exactly as you want it shown, in any script or spelling." : undefined}
+          errors={fieldErrors.value}
+        />
+      )}
 
       <Field
         label="Where you use it"

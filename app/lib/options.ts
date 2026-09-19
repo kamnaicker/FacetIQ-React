@@ -21,7 +21,7 @@ export const kinds: readonly Kind[] = [
   { value: "name", label: "Name", placeholder: "Amara Nwosu" },
   { value: "dateOfBirth", label: "Date of birth", type: "date" },
   { value: "email", label: "Email address", type: "email", placeholder: "amara@example.com" },
-  { value: "phone", label: "Phone number", type: "tel", placeholder: "+27 82 000 0000" },
+  { value: "phone", label: "Phone number" },
   { value: "pronouns", label: "Pronouns", placeholder: "she/her" },
   { value: "employer", label: "Employer", placeholder: "Groote Schuur Hospital" },
   { value: "address", label: "Home address", placeholder: "12 Long Street, Cape Town" },
