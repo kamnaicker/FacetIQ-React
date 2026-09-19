@@ -2,12 +2,13 @@ import { useEffect, useState } from "react";
 import { NoProfile } from "../components/no-profile";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
+import { ConfirmButton } from "../components/ui/confirm-button";
 import { Field } from "../components/ui/field";
 import { List, ListItem } from "../components/ui/list";
 import { PageHeader } from "../components/ui/page-header";
 import { Value } from "../components/ui/value";
 import { useNotify } from "../components/ui/toast";
-import { acceptStanding, issueStanding, listStandings } from "../lib/api/client";
+import { acceptStanding, issueStanding, listStandings, removeStanding } from "../lib/api/client";
 import type { StandingResponse } from "../lib/api/types";
 
 export function meta() {
@@ -92,6 +93,20 @@ export default function Standings() {
     }
   }
 
+  async function handleRemove(standing: StandingResponse, done: string) {
+    const result = await removeStanding(standing.id);
+
+    if (result.ok) {
+      notify("success", done);
+      await load();
+      return;
+    }
+
+    if (result.error.kind !== "unauthorized") {
+      notify("error", "That was not removed. Try again.");
+    }
+  }
+
   return (
     <>
       <PageHeader title="People" description="Say who someone is to you. Your rules use it once they confirm." />
@@ -118,15 +133,30 @@ export default function Standings() {
                     </span>
 
                     {standing.acceptedAt ? (
-                      <span className="ml-auto text-sm text-muted">Confirmed</span>
+                      <span className="ml-auto flex items-center gap-4">
+                        <span className="text-sm text-muted">Confirmed</span>
+                        <ConfirmButton
+                          label="Remove"
+                          confirmLabel="Yes, remove"
+                          onConfirm={() =>
+                            handleRemove(
+                              standing,
+                              `Removed. ${standing.issuer}'s rules no longer treat you as their ${standing.value}.`,
+                            )
+                          }
+                        />
+                      </span>
                     ) : (
-                      <Button
-                        type="button"
-                        className="ml-auto"
-                        onClick={() => handleAccept(standing)}
-                      >
-                        Confirm
-                      </Button>
+                      <span className="ml-auto flex items-center gap-4">
+                        <ConfirmButton
+                          label="Decline"
+                          confirmLabel="Yes, decline"
+                          onConfirm={() => handleRemove(standing, "Declined.")}
+                        />
+                        <Button type="button" onClick={() => handleAccept(standing)}>
+                          Confirm
+                        </Button>
+                      </span>
                     )}
                   </ListItem>
                 ))}
@@ -150,8 +180,17 @@ export default function Standings() {
                       <Value>{standing.value}</Value>
                     </span>
 
-                    <span className="ml-auto text-sm text-muted">
-                      {standing.acceptedAt ? "Confirmed" : "Waiting for them to confirm"}
+                    <span className="ml-auto flex items-center gap-4">
+                      <span className="text-sm text-muted">
+                        {standing.acceptedAt ? "Confirmed" : "Waiting for them to confirm"}
+                      </span>
+                      <ConfirmButton
+                        label="Remove"
+                        confirmLabel="Yes, remove"
+                        onConfirm={() =>
+                          handleRemove(standing, `Removed. ${standing.holder} is no longer your ${standing.value}.`)
+                        }
+                      />
                     </span>
                   </ListItem>
                 ))}

@@ -272,6 +272,10 @@ export async function acceptStanding(id: string): Promise<Result<void>> {
   return request<void>(`/standing/${id}/accept`, { method: "POST" });
 }
 
+export async function removeStanding(id: string): Promise<Result<void>> {
+  return request<void>(`/standing/${id}`, { method: "DELETE" });
+}
+
 export async function listClaims(): Promise<Result<AttributeResponse[]>> {
   return request<AttributeResponse[]>("/attribute");
 }
