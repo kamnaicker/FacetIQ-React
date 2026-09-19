@@ -1,9 +1,12 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
+import { GettingStarted } from "../components/getting-started";
+import { Switch } from "../components/ui/switch";
 import { ThemeToggle } from "../components/ui/theme-toggle";
 import { useNotify } from "../components/ui/toast";
 import { isSignedIn, sessionExpired, signOut } from "../lib/api/client";
 import { useAccount } from "../lib/api/queries";
+import { guideShown, setGuideShown } from "../lib/guide";
 
 // Runs in the browser, since the app is client rendered. The API refuses these calls anyway;
 // this only saves the round trip and keeps the signed out state out of the screens.
@@ -44,6 +47,13 @@ export default function Protected() {
   const notify = useNotify();
   const { result: account } = useAccount();
   const email = account?.ok ? account.data.email : null;
+  // Read on first render: routes only render in the browser, so storage is there.
+  const [guide, setGuide] = useState(guideShown);
+
+  function handleGuide(shown: boolean) {
+    setGuide(shown);
+    setGuideShown(shown);
+  }
 
   // A token expiring mid page would otherwise leave the screen showing a generic failure.
   useEffect(() => {
@@ -73,7 +83,9 @@ export default function Protected() {
               FacetIQ
             </Link>
 
-            <ThemeToggle className="ml-auto" />
+            {/* The sidebar row is too narrow for both switches, so on a desktop Guide sits in the footer. */}
+            <Switch label="Guide" checked={guide} onCheckedChange={handleGuide} className="ml-auto md:hidden" />
+            <ThemeToggle className="md:ml-auto" />
 
             <button
               type="button"
@@ -100,6 +112,8 @@ export default function Protected() {
         </div>
 
         <div className="hidden border-t border-line p-4 md:mt-auto md:block">
+          <Switch label="Setup guide" checked={guide} onCheckedChange={handleGuide} className="mb-3 px-3" />
+
           {email && <p className="truncate px-3 text-xs text-muted">{email}</p>}
 
           <button
@@ -113,6 +127,7 @@ export default function Protected() {
       </header>
 
       <main className="w-full max-w-3xl px-6 py-10 md:px-10 md:py-14">
+        {guide && <GettingStarted onClose={() => handleGuide(false)} />}
         <Outlet />
       </main>
     </div>
