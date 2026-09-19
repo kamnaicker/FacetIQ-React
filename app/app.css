@@ -1,0 +1,84 @@
+@import "tailwindcss";
+
+/* Semantic names rather than colour names, so a screen says what a thing is and the palette
+   changes in one place. Each pair is light then dark, picked by color-scheme below. */
+:root {
+  color-scheme: light dark;
+
+  --paper: light-dark(#f5f7f6, #111a1b);
+  --surface: light-dark(#ffffff, #172223);
+  --raised: light-dark(#eef2f0, #1e2b2c);
+  --ink: light-dark(#1c2b2e, #e4eae8);
+  --muted: light-dark(#56676b, #9aabae);
+  --line: light-dark(#d8dedc, #2a3638);
+  --shared: light-dark(#0e5e5a, #5fb8b0);
+  --shared-ink: light-dark(#ffffff, #0b1718);
+  --shared-soft: light-dark(#e3efec, #1b3230);
+  --withheld: light-dark(#8a5310, #d9a55a);
+  --withheld-soft: light-dark(#f6ebdc, #33281a);
+  --danger: light-dark(#a32a22, #f19a92);
+  --danger-soft: light-dark(#fbeae8, #3a1f1d);
+}
+
+/* Set by the toggle, and by the inline script before paint so a choice does not flash. */
+:root[data-theme="light"] {
+  color-scheme: light;
+}
+
+:root[data-theme="dark"] {
+  color-scheme: dark;
+}
+
+/* Only while switching, so hover and focus stay immediate the rest of the time. */
+@media (prefers-reduced-motion: no-preference) {
+  :root[data-theme-changing],
+  :root[data-theme-changing] * {
+    transition:
+      background-color 240ms ease,
+      border-color 240ms ease,
+      color 240ms ease,
+      outline-color 240ms ease;
+  }
+}
+
+@theme inline {
+  --font-sans: "Public Sans", ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji",
+    "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+
+  --color-paper: var(--paper);
+  --color-surface: var(--surface);
+  --color-raised: var(--raised);
+  --color-ink: var(--ink);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-shared: var(--shared);
+  --color-shared-ink: var(--shared-ink);
+  --color-shared-soft: var(--shared-soft);
+  --color-withheld: var(--withheld);
+  --color-withheld-soft: var(--withheld-soft);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+
+  /* Reading sizes for a text heavy tool: 13 for meta, 15 for body, 28 for page titles. */
+  --text-xs: 0.8125rem;
+  --text-xs--line-height: 1.25rem;
+  --text-sm: 0.9375rem;
+  --text-sm--line-height: 1.5rem;
+  --text-2xl: 1.75rem;
+  --text-2xl--line-height: 2.125rem;
+}
+
+html,
+body {
+  @apply bg-paper text-ink antialiased;
+}
+
+/* One keyboard focus style for buttons and links. Inputs keep their own softer ring. */
+@utility focus-ring {
+  outline: none;
+
+  &:focus-visible {
+    outline: 2px solid var(--shared);
+    outline-offset: 2px;
+  }
+}
