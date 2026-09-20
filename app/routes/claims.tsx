@@ -35,7 +35,7 @@ export default function Claims() {
 
     if (result.ok) {
       notify("success", `Added "${result.data.value}".`);
-      refresh();
+      await refresh();
       return true;
     }
 
@@ -44,7 +44,7 @@ export default function Claims() {
         setFieldErrors(result.error.fieldErrors);
         break;
       case "forbidden":
-        refresh();
+        await refresh();
         break;
       case "unauthorized":
         break;
@@ -62,7 +62,7 @@ export default function Claims() {
 
     if (result.ok) {
       notify("success", `Deleted "${claim.value}".`);
-      refresh();
+      await refresh();
       return;
     }
 

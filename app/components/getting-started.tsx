@@ -7,6 +7,14 @@ type GettingStartedProps = {
   onClose: () => void;
 };
 
+// An account with no profile has nothing to be guided through, so the switch that controls the
+// guide is hidden there too. Both read the same cached claims, so this costs no extra request.
+export function useGuideAvailable(): boolean {
+  const { result: claims } = useClaims();
+
+  return !(claims?.ok === false && claims.error.kind === "forbidden");
+}
+
 // Steps tick from data the pages already load. Nothing records a lookup the person made, so the
 // last step never ticks. Inline above the page on narrow screens, floating where there is room.
 export function GettingStarted({ onClose }: GettingStartedProps) {
@@ -41,14 +49,15 @@ export function GettingStarted({ onClose }: GettingStartedProps) {
     >
       <div className="flex items-start justify-between gap-3">
         <h2 id="getting-started" className="text-sm font-medium text-ink">
-          Getting started
+          Setup guide
         </h2>
 
+        {/* Sized to the 24px minimum target, with the margin pulling the icon back into line. */}
         <button
           type="button"
           onClick={onClose}
           aria-label="Hide the setup guide"
-          className="focus-ring -mt-0.5 rounded p-0.5 text-muted hover:text-ink"
+          className="focus-ring -mt-1 -mr-1 flex size-6 shrink-0 items-center justify-center rounded text-muted hover:text-ink"
         >
           <svg width="12" height="12" viewBox="0 0 12 12" aria-hidden="true">
             <path d="M3 3l6 6M9 3l-6 6" fill="none" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />

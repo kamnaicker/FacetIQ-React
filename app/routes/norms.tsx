@@ -49,7 +49,7 @@ export default function Norms() {
 
     if (result.ok) {
       notify("success", "Rule saved.");
-      refresh();
+      await refresh();
       return true;
     }
 
@@ -62,7 +62,7 @@ export default function Norms() {
         setFieldErrors(result.error.fieldErrors);
         break;
       case "forbidden":
-        refresh();
+        await refresh();
         break;
       case "unauthorized":
         break;
@@ -78,7 +78,7 @@ export default function Norms() {
 
     if (result.ok) {
       notify("success", "Rule removed. It no longer applies to anyone.");
-      refresh();
+      await refresh();
       return;
     }
 

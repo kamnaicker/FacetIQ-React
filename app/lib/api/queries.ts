@@ -16,10 +16,11 @@ export const queryClient = new QueryClient({
 });
 
 // The facade never throws, so a failure is cached as data and pages branch on Result as before.
-// result is undefined until the first load returns.
+// result is undefined until the first load returns. refresh settles once the list has been
+// replaced, so a handler can hold its buttons until the row it acted on is gone.
 export type Resource<T> = {
   result: Result<T> | undefined;
-  refresh(): void;
+  refresh(): Promise<void>;
 };
 
 // Lists another person can change. TanStack pauses polling while the tab is hidden.
@@ -54,8 +55,8 @@ function useResource<T>(
 
   return {
     result: query.data,
-    refresh() {
-      query.refetch();
+    async refresh() {
+      await query.refetch();
     },
   };
 }

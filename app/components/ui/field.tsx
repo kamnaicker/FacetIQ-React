@@ -1,6 +1,8 @@
-import type { InputHTMLAttributes } from "react";
+import type { ComponentProps } from "react";
 
-type FieldProps = InputHTMLAttributes<HTMLInputElement> & {
+// ComponentProps rather than InputHTMLAttributes so a caller can hold a ref to the input,
+// which is how the phone field sets its validity message.
+type FieldProps = ComponentProps<"input"> & {
   label: string;
   name: string;
   hint?: string;

@@ -1,14 +1,16 @@
 import * as RadixSwitch from "@radix-ui/react-switch";
-import { useId } from "react";
+import { useId, type Ref } from "react";
 
 type SwitchProps = {
   label: string;
   checked: boolean;
   onCheckedChange: (checked: boolean) => void;
   className?: string;
+  // So a caller can put focus back on the switch when what it controls goes away.
+  ref?: Ref<HTMLButtonElement>;
 };
 
-export function Switch({ label, checked, onCheckedChange, className = "" }: SwitchProps) {
+export function Switch({ label, checked, onCheckedChange, className = "", ref }: SwitchProps) {
   // The same switch can render twice on one page, so each needs an id of its own.
   const id = useId();
 
@@ -19,6 +21,7 @@ export function Switch({ label, checked, onCheckedChange, className = "" }: Swit
       </label>
 
       <RadixSwitch.Root
+        ref={ref}
         id={id}
         checked={checked}
         onCheckedChange={onCheckedChange}
