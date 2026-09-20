@@ -21,7 +21,8 @@ export function meta() {
 export default function Norms() {
   const { result: normResult, refresh } = useNorms();
   const { result: claimResult } = useClaims();
-  const { result: standingResult } = useStandings();
+  // Only the terms are read here, and only this person adds those.
+  const { result: standingResult } = useStandings({ poll: false });
   const [conflict, setConflict] = useState<NormConflictResponse | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [busy, setBusy] = useState(false);
@@ -48,7 +49,7 @@ export default function Norms() {
 
     if (result.ok) {
       notify("success", "Rule saved.");
-      refresh();
+      await refresh();
       return true;
     }
 
@@ -61,7 +62,7 @@ export default function Norms() {
         setFieldErrors(result.error.fieldErrors);
         break;
       case "forbidden":
-        refresh();
+        await refresh();
         break;
       case "unauthorized":
         break;
@@ -77,7 +78,7 @@ export default function Norms() {
 
     if (result.ok) {
       notify("success", "Rule removed. It no longer applies to anyone.");
-      refresh();
+      await refresh();
       return;
     }
 

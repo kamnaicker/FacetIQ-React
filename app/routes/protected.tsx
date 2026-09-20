@@ -1,9 +1,13 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
+import { GettingStarted, useGuideAvailable } from "../components/getting-started";
+import { Switch } from "../components/ui/switch";
 import { ThemeToggle } from "../components/ui/theme-toggle";
 import { useNotify } from "../components/ui/toast";
-import { isSignedIn, sessionExpired, signOut } from "../lib/api/client";
+import { isSignedIn, sessionExpired } from "../lib/api/client";
 import { useAccount } from "../lib/api/queries";
+import { guideShown, setGuideShown } from "../lib/guide";
+import { useSignOut } from "../lib/use-sign-out";
 
 // Runs in the browser, since the app is client rendered. The API refuses these calls anyway;
 // this only saves the round trip and keeps the signed out state out of the screens.
@@ -44,6 +48,23 @@ export default function Protected() {
   const notify = useNotify();
   const { result: account } = useAccount();
   const email = account?.ok ? account.data.email : null;
+  // Read on first render: routes only render in the browser, so storage is there.
+  const [guide, setGuide] = useState(guideShown);
+  const guideAvailable = useGuideAvailable();
+  // One of the two is on screen at a time: the narrow layout's or the sidebar's.
+  const guideSwitches = useRef<(HTMLButtonElement | null)[]>([]);
+
+  function handleGuide(shown: boolean) {
+    setGuide(shown);
+    setGuideShown(shown);
+  }
+
+  // Closing from inside the panel would otherwise leave focus on nothing, stranding a keyboard
+  // user at the top of the document. It goes to the switch that brings the panel back.
+  function closeGuide() {
+    handleGuide(false);
+    guideSwitches.current.find((node) => node !== null && node.offsetParent !== null)?.focus();
+  }
 
   // A token expiring mid page would otherwise leave the screen showing a generic failure.
   useEffect(() => {
@@ -57,11 +78,7 @@ export default function Protected() {
     return () => window.removeEventListener(sessionExpired, onExpired);
   }, [navigate, notify]);
 
-  function handleSignOut() {
-    signOut();
-    notify("success", "Signed out.");
-    navigate("/sign-in");
-  }
+  const handleSignOut = useSignOut();
 
   return (
     <div className="min-h-screen md:flex">
@@ -73,7 +90,19 @@ export default function Protected() {
               FacetIQ
             </Link>
 
-            <ThemeToggle className="ml-auto" />
+            {/* The sidebar row is too narrow for both switches, so on a desktop this one sits in the footer. */}
+            {guideAvailable && (
+              <Switch
+                ref={(node) => {
+                  guideSwitches.current[0] = node;
+                }}
+                label="Setup guide"
+                checked={guide}
+                onCheckedChange={handleGuide}
+                className="ml-auto md:hidden"
+              />
+            )}
+            <ThemeToggle className="md:ml-auto" />
 
             <button
               type="button"
@@ -100,6 +129,18 @@ export default function Protected() {
         </div>
 
         <div className="hidden border-t border-line p-4 md:mt-auto md:block">
+          {guideAvailable && (
+            <Switch
+              ref={(node) => {
+                guideSwitches.current[1] = node;
+              }}
+              label="Setup guide"
+              checked={guide}
+              onCheckedChange={handleGuide}
+              className="mb-3 px-3"
+            />
+          )}
+
           {email && <p className="truncate px-3 text-xs text-muted">{email}</p>}
 
           <button
@@ -113,6 +154,7 @@ export default function Protected() {
       </header>
 
       <main className="w-full max-w-3xl px-6 py-10 md:px-10 md:py-14">
+        {guide && <GettingStarted onClose={closeGuide} />}
         <Outlet />
       </main>
     </div>

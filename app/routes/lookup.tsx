@@ -6,6 +6,7 @@ import { PageHeader } from "../components/ui/page-header";
 import { Select } from "../components/ui/select";
 import { useNotify } from "../components/ui/toast";
 import { disclose } from "../lib/api/client";
+import { limits } from "../lib/api/limits";
 import type { DisclosureResponse } from "../lib/api/types";
 import { kinds, purposes } from "../lib/options";
 
@@ -62,6 +63,7 @@ export default function Lookup() {
           label="Who you are asking"
           name="subjectEmail"
           type="email"
+          maxLength={limits.email}
           placeholder="name@example.com"
           hint="The email address they use on FacetIQ."
           required

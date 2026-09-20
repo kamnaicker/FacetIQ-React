@@ -3,6 +3,7 @@ import { Button } from "./ui/button";
 import { Field } from "./ui/field";
 import { PhoneField } from "./ui/phone-field";
 import { Select } from "./ui/select";
+import { limits } from "../lib/api/limits";
 import type { CreateAttributeRequest } from "../lib/api/types";
 import { any, kinds, purposes } from "../lib/options";
 
@@ -57,6 +58,7 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
           label={selected.label}
           name="value"
           type={selected.type ?? "text"}
+          maxLength={limits.claimValue}
           required
           placeholder={selected.placeholder}
           hint={kind === "name" ? "Exactly as you want it shown, in any script or spelling." : undefined}
@@ -67,6 +69,7 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
       <Field
         label="Where you use it"
         name="label"
+        maxLength={limits.claimLabel}
         placeholder="professional"
         hint="A note for yourself, so you can tell your claims apart when writing rules."
         errors={fieldErrors.label}

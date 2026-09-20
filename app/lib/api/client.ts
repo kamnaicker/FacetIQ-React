@@ -1,4 +1,8 @@
-import { clearToken, getToken, setToken } from "./token";
+import { clearToken, endSession, getToken, setToken } from "./token";
+
+// The session store raises it; screens listen through this facade like everything else.
+export { sessionExpired } from "./token";
+
 import type {
   ApiError,
   AttributeResponse,
@@ -45,11 +49,20 @@ async function request<T>(path: string, init: RequestInit = {}): Promise<Result<
     return { ok: false, error: { kind: "network" } };
   }
 
-  if (response.ok) {
-    return { ok: true, data: await readBody<T>(response) };
-  }
+  // Reading the body can throw when something other than the API answers, such as a proxy page or
+  // a wrong base URL. Callers rely on a Result, so that becomes one too.
+  try {
+    if (response.ok) {
+      return { ok: true, data: await readBody<T>(response) };
+    }
 
-  return { ok: false, error: await readError(response) };
+    return { ok: false, error: await readError(response) };
+  } catch {
+    return {
+      ok: false,
+      error: { kind: "unexpected", status: response.status, message: "The answer was not JSON." },
+    };
+  }
 }
 
 async function readBody<T>(response: Response): Promise<T> {
@@ -62,15 +75,12 @@ async function readBody<T>(response: Response): Promise<T> {
   return text ? (JSON.parse(text) as T) : (undefined as T);
 }
 
-export const sessionExpired = "facetiq:session-expired";
-
 async function readError(response: Response): Promise<ApiError> {
   if (response.status === 401) {
     // Only a signed in request can expire. A wrong password on the sign in form carries no
     // token, so it is reported to the form instead of ending a session that never began.
     if (getToken() !== null) {
-      clearToken();
-      window.dispatchEvent(new Event(sessionExpired));
+      endSession();
     }
 
     // Identity reports an unconfirmed email as a NotAllowed sign in.

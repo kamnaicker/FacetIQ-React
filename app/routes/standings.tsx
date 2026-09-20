@@ -9,6 +9,7 @@ import { PageHeader } from "../components/ui/page-header";
 import { Value } from "../components/ui/value";
 import { useNotify } from "../components/ui/toast";
 import { acceptStanding, issueStanding, removeStanding } from "../lib/api/client";
+import { limits } from "../lib/api/limits";
 import { useStandings } from "../lib/api/queries";
 import type { StandingResponse } from "../lib/api/types";
 
@@ -20,6 +21,9 @@ export default function Standings() {
   const { result, refresh } = useStandings();
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [busy, setBusy] = useState(false);
+  // The row stays in place while it is confirmed, so the button holds itself rather than
+  // letting a second click land on a standing that has already been accepted.
+  const [confirming, setConfirming] = useState<string | null>(null);
   const notify = useNotify();
 
   const issued = result?.ok ? result.data.issued : [];
@@ -47,7 +51,7 @@ export default function Standings() {
     if (result.ok) {
       element.reset();
       notify("success", `Added ${result.data.holder}. It takes effect once they confirm.`);
-      refresh();
+      await refresh();
       return;
     }
 
@@ -62,17 +66,18 @@ export default function Standings() {
   }
 
   async function handleAccept(standing: StandingResponse) {
+    setConfirming(standing.id);
+
     const result = await acceptStanding(standing.id);
 
     if (result.ok) {
       notify("success", `Confirmed. ${standing.issuer}'s rules now treat you as their ${standing.value}.`);
-      refresh();
-      return;
-    }
-
-    if (result.error.kind !== "unauthorized") {
+      await refresh();
+    } else if (result.error.kind !== "unauthorized") {
       notify("error", "That was not confirmed. Try again.");
     }
+
+    setConfirming(null);
   }
 
   async function handleRemove(standing: StandingResponse, done: string) {
@@ -80,7 +85,7 @@ export default function Standings() {
 
     if (result.ok) {
       notify("success", done);
-      refresh();
+      await refresh();
       return;
     }
 
@@ -91,7 +96,10 @@ export default function Standings() {
 
   return (
     <>
-      <PageHeader title="People" description="Say who someone is to you. Your rules use it once they confirm." />
+      <PageHeader
+        title="People"
+        description="Say who someone is to you. Your rules use it once they confirm. This only changes what your rules share with them: what you see of someone else depends on their rules, and on whether they have added you."
+      />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 
@@ -102,6 +110,10 @@ export default function Standings() {
       ) : (
         <>
           <h2 className="mt-10 text-base font-medium text-ink">How others describe you</h2>
+
+          <p className="mt-1 max-w-prose text-sm text-muted">
+            Their rules can use these once you confirm. Confirming does not show you anything of theirs.
+          </p>
 
           <div className="mt-3">
             {held.length === 0 ? (
@@ -135,8 +147,12 @@ export default function Standings() {
                           confirmLabel="Yes, decline"
                           onConfirm={() => handleRemove(standing, "Declined.")}
                         />
-                        <Button type="button" onClick={() => handleAccept(standing)}>
-                          Confirm
+                        <Button
+                          type="button"
+                          disabled={confirming === standing.id}
+                          onClick={() => handleAccept(standing)}
+                        >
+                          {confirming === standing.id ? "Confirming" : "Confirm"}
                         </Button>
                       </span>
                     )}
@@ -147,6 +163,10 @@ export default function Standings() {
           </div>
 
           <h2 className="mt-10 text-base font-medium text-ink">Who others are to you</h2>
+
+          <p className="mt-1 max-w-prose text-sm text-muted">
+            Your rules use these when the person asks about you.
+          </p>
 
           <div className="mt-3">
             {issued.length === 0 ? (
@@ -187,6 +207,7 @@ export default function Standings() {
               label="Their email"
               name="email"
               type="email"
+              maxLength={limits.email}
               required
               placeholder="name@example.com"
               hint="The address they use on FacetIQ. They confirm before it takes effect."
@@ -195,6 +216,7 @@ export default function Standings() {
             <Field
               label="They are your"
               name="value"
+              maxLength={limits.relationship}
               required
               placeholder="colleague"
               hint="One word your rules can use, such as colleague, friend or doctor."

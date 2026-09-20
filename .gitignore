@@ -5,3 +5,6 @@
 # React Router
 /.react-router/
 /build/
+
+# Generated before each build from package-lock.json
+/public/third-party-notices.txt
