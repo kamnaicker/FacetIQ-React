@@ -12,7 +12,8 @@ type GettingStartedProps = {
 export function GettingStarted({ onClose }: GettingStartedProps) {
   const { pathname } = useLocation();
   const { result: claims } = useClaims();
-  const { result: standings } = useStandings();
+  // No polling: the guide sits on every page, and only this person's own action ticks these steps.
+  const { result: standings } = useStandings({ poll: false });
   const { result: norms } = useNorms();
 
   // Waits for the claims answer so the steps never show unticked first, and stays out of the way

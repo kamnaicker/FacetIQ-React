@@ -21,7 +21,8 @@ export function meta() {
 export default function Norms() {
   const { result: normResult, refresh } = useNorms();
   const { result: claimResult } = useClaims();
-  const { result: standingResult } = useStandings();
+  // Only the terms are read here, and only this person adds those.
+  const { result: standingResult } = useStandings({ poll: false });
   const [conflict, setConflict] = useState<NormConflictResponse | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Record<string, string[]>>({});
   const [busy, setBusy] = useState(false);

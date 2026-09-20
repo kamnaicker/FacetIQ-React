@@ -2,6 +2,9 @@ const key = "facetiq.session";
 
 type Session = { token: string; expiresAt: number };
 
+/** Raised when a session ends mid visit, whether the client noticed the expiry or the API refused. */
+export const sessionExpired = "facetiq:session-expired";
+
 /**
  * Only the access token is kept, and only in localStorage. The refresh token the API issues is
  * deliberately discarded: a long lived credential is the one worth stealing, and signing in again
@@ -21,12 +24,19 @@ export function getToken(): string | null {
     return null;
   }
 
+  // Announced, not just cleared: an expired token would otherwise look like never having signed in,
+  // and the screens would fill with refusals instead of sending the person to sign in.
   if (Date.now() >= session.expiresAt) {
-    clearToken();
+    endSession();
     return null;
   }
 
   return session.token;
+}
+
+export function endSession(): void {
+  clearToken();
+  window.dispatchEvent(new Event(sessionExpired));
 }
 
 export function setToken(token: string, expiresInSeconds: number): void {
