@@ -50,7 +50,10 @@ export default function Standings() {
 
     if (result.ok) {
       element.reset();
-      notify("success", `Added ${result.data.holder}. It takes effect once they confirm.`);
+      notify(
+        "success",
+        `Added ${result.data.holder}. Your rules treat this person as your ${result.data.value} once this person confirms.`,
+      );
       await refresh();
       return;
     }
@@ -98,7 +101,7 @@ export default function Standings() {
     <>
       <PageHeader
         title="People"
-        description="Say who someone is to you. Your rules use it once they confirm. This only changes what your rules share with them: what you see of someone else depends on their rules, and on whether they have added you."
+        description="Add the people you know by email address and say what each person is to you: a colleague, a friend, a doctor. Your rules use those words to decide what each person sees. Adding someone here does not show you anything about that person."
       />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
@@ -112,12 +115,16 @@ export default function Standings() {
           <h2 className="mt-10 text-base font-medium text-ink">How others describe you</h2>
 
           <p className="mt-1 max-w-prose text-sm text-muted">
-            Their rules can use these once you confirm. Confirming does not show you anything of theirs.
+            Confirm a word and that person's rules can start treating you as their colleague, their
+            friend or their doctor. Confirming a word does not show you anything about that person.
           </p>
 
           <div className="mt-3">
             {held.length === 0 ? (
-              <p className="text-sm text-muted">Nobody has added you yet.</p>
+              <p className="max-w-prose text-sm text-muted">
+                Nobody has said who you are to them yet. When somebody does, the word they chose
+                appears here for you to confirm or turn down.
+              </p>
             ) : (
               <List>
                 {held.map((standing) => (
@@ -165,12 +172,15 @@ export default function Standings() {
           <h2 className="mt-10 text-base font-medium text-ink">Who others are to you</h2>
 
           <p className="mt-1 max-w-prose text-sm text-muted">
-            Your rules use these when the person asks about you.
+            Your rules use these words when one of these people asks about you.
           </p>
 
           <div className="mt-3">
             {issued.length === 0 ? (
-              <p className="text-sm text-muted">You have not added anyone yet.</p>
+              <p className="max-w-prose text-sm text-muted">
+                You have not said who anyone is to you yet, so your rules treat everybody who asks
+                the same way. Add somebody at the bottom of this page.
+              </p>
             ) : (
               <List>
                 {issued.map((standing) => (
@@ -210,16 +220,16 @@ export default function Standings() {
               maxLength={limits.email}
               required
               placeholder="name@example.com"
-              hint="The address they use on FacetIQ. They confirm before it takes effect."
+              hint="Type the email address this person signed up with. FacetIQ asks this person to agree. Until this person agrees, your rules treat this person like a stranger."
               errors={fieldErrors.email}
             />
             <Field
-              label="They are your"
+              label="What they are to you"
               name="value"
               maxLength={limits.relationship}
               required
               placeholder="colleague"
-              hint="One word your rules can use, such as colleague, friend or doctor."
+              hint="Write one word, such as colleague, friend or doctor. Your rules can use the same word to cover this person."
               errors={fieldErrors.value}
             />
 

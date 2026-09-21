@@ -31,10 +31,10 @@ export function DisclosureResult({ result }: { result: DisclosureResponse }) {
 function Body({ result }: { result: DisclosureResponse }) {
   if (result.values !== null) {
     return result.values.length === 0 ? (
-      <Headline>You hold nothing of this kind yet.</Headline>
+      <Headline>You have not added anything like that about yourself yet.</Headline>
     ) : (
       <>
-        <Headline>Your own claims, every one of them.</Headline>
+        <Headline>You asked about yourself, so here is everything you have added.</Headline>
         <ul className="mt-3 space-y-1 text-xl text-ink">
           {result.values.map((value) => (
             <li key={value}>{value}</li>

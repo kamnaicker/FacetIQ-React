@@ -12,6 +12,7 @@ type PhoneFieldProps = {
   label: string;
   name: string;
   defaultCountry: CountryCode;
+  hint?: string;
   errors?: string[];
 };
 
@@ -29,7 +30,7 @@ const countries: readonly Option[] = getCountries()
 const maxTyped = 24;
 
 // Typed as written locally, submitted in E.164, which the API checks and stores.
-export function PhoneField({ label, name, defaultCountry, errors }: PhoneFieldProps) {
+export function PhoneField({ label, name, defaultCountry, hint, errors }: PhoneFieldProps) {
   const [country, setCountry] = useState<string>(defaultCountry);
   const [number, setNumber] = useState("");
   const [touched, setTouched] = useState(false);
@@ -53,6 +54,7 @@ export function PhoneField({ label, name, defaultCountry, errors }: PhoneFieldPr
       <Select
         label="Country"
         name={`${name}Country`}
+        hint="Pick the country this number belongs to."
         options={countries}
         value={country}
         onValueChange={setCountry}
@@ -67,6 +69,7 @@ export function PhoneField({ label, name, defaultCountry, errors }: PhoneFieldPr
         maxLength={maxTyped}
         required
         placeholder="082 123 4567"
+        hint={hint}
         value={number}
         onChange={(event) => setNumber(event.target.value)}
         onBlur={() => setTouched(true)}

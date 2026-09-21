@@ -25,7 +25,7 @@ export default function History() {
     <>
       <PageHeader
         title="Requests"
-        description="Who has asked about you, what they asked, and what they were given. Nothing here is stored twice: the answer itself is not kept."
+        description="See who has asked about you, what that person wanted to know, the reason they gave, and what your rules decided to share."
       />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
@@ -35,7 +35,10 @@ export default function History() {
           <NoProfile />
         </div>
       ) : records.length === 0 ? (
-        <p className="mt-8 text-sm text-muted">Nobody has asked about you yet.</p>
+        <p className="mt-8 max-w-prose text-sm text-muted">
+          Nobody has asked about you yet. When somebody looks you up, the question and what your
+          rules decided to share both appear here.
+        </p>
       ) : (
         <List className="mt-8">
           {records.map((record) => {
@@ -91,7 +94,7 @@ function outcome(record: DisclosureRecordResponse): { label: string; tone: Tone;
   }
 
   if (record.isSelf) {
-    return { label: "Every claim of that kind", tone: "shared" };
+    return { label: "Every one you hold", tone: "shared" };
   }
 
   if (record.outcome === "Return") {

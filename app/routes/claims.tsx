@@ -3,6 +3,7 @@ import { ClaimForm } from "../components/claim-form";
 import { ClaimInUse } from "../components/claim-in-use";
 import { ClaimList } from "../components/claim-list";
 import { NoProfile } from "../components/no-profile";
+import { PurposeNote } from "../components/purpose-note";
 import { Alert } from "../components/ui/alert";
 import { PageHeader } from "../components/ui/page-header";
 import { useNotify } from "../components/ui/toast";
@@ -78,7 +79,10 @@ export default function Claims() {
 
   return (
     <>
-      <PageHeader title="Claims" description="What you hold about yourself. You can keep more than one of the same kind." />
+      <PageHeader
+        title="Claims"
+        description="Add your name, your date of birth, your phone number, or anything else people ask you for. Nothing you add is shown to anybody until you write a rule that shares it."
+      />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
 
@@ -103,6 +107,8 @@ export default function Claims() {
           <div className="mt-4">
             <ClaimForm fieldErrors={fieldErrors} busy={busy} onSubmit={handleSubmit} />
           </div>
+
+          <PurposeNote className="mt-8" />
         </>
       )}
     </>

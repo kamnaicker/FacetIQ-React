@@ -12,7 +12,10 @@ type ClaimListProps = {
 export function ClaimList({ claims, onDelete }: ClaimListProps) {
   if (claims.length === 0) {
     return (
-      <p className="text-sm text-muted">You have not added any claims yet.</p>
+      <p className="max-w-prose text-sm text-muted">
+        You have not added anything about yourself yet. Use the form at the bottom of this page,
+        and whatever you add stays private until you write a rule that shares it.
+      </p>
     );
   }
 

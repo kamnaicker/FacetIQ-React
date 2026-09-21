@@ -1,6 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
-import { ResendConfirmation } from "../components/resend-confirmation";
+import { Link, useLocation, useNavigate } from "react-router";
 import { Alert } from "../components/ui/alert";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
@@ -13,34 +12,32 @@ export function meta() {
   return [{ title: "Sign in | FacetIQ" }];
 }
 
+type Arrival = { email?: string; registered?: boolean } | null;
+
 export default function SignIn() {
   const navigate = useNavigate();
+  // Set by the register page after an account is created.
+  const arrival = useLocation().state as Arrival;
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
-  const [unconfirmed, setUnconfirmed] = useState<string | null>(null);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
 
     const form = new FormData(event.currentTarget);
-    const email = String(form.get("email"));
 
     setBusy(true);
     setError(null);
-    setUnconfirmed(null);
 
-    const result = await signIn(email, String(form.get("password")));
+    const result = await signIn(String(form.get("email")), String(form.get("password")));
 
     setBusy(false);
 
     if (result.ok) {
       clearCache();
-      navigate("/lookup");
+      // Home decides where a signed in person lands, so a first sign in reaches the welcome page.
+      navigate("/");
       return;
-    }
-
-    if (result.error.kind === "unconfirmed") {
-      setUnconfirmed(email);
     }
 
     setError(messageFor(result.error));
@@ -49,6 +46,10 @@ export default function SignIn() {
   return (
     <>
       <h1 className="text-2xl font-semibold tracking-tight text-ink">Sign in</h1>
+
+      {arrival?.registered && (
+        <p className="mt-4 text-sm text-muted">Your account is ready. Sign in to continue.</p>
+      )}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && <Alert>{error}</Alert>}
@@ -60,6 +61,8 @@ export default function SignIn() {
           maxLength={limits.email}
           autoComplete="email"
           placeholder="name@example.com"
+          hint="Type the email address you signed up with."
+          defaultValue={arrival?.email}
           required
         />
         <Field
@@ -67,6 +70,7 @@ export default function SignIn() {
           name="password"
           type="password"
           autoComplete="current-password"
+          hint="Type the password you chose when you created your account."
           required
         />
 
@@ -74,12 +78,6 @@ export default function SignIn() {
           {busy ? "Signing in" : "Sign in"}
         </Button>
       </form>
-
-      {unconfirmed && (
-        <div className="mt-4">
-          <ResendConfirmation email={unconfirmed} />
-        </div>
-      )}
 
       <p className="mt-6 text-sm text-muted">
         No account?{" "}
@@ -95,8 +93,6 @@ function messageFor(error: ApiError): string {
   switch (error.kind) {
     case "unauthorized":
       return "That email and password do not match an account.";
-    case "unconfirmed":
-      return "Confirm your email before signing in. The link is in your inbox.";
     case "rateLimited":
       return "Too many attempts. Wait a few minutes and try again.";
     case "network":

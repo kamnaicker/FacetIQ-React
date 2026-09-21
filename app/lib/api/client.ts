@@ -83,10 +83,7 @@ async function readError(response: Response): Promise<ApiError> {
       endSession();
     }
 
-    // Identity reports an unconfirmed email as a NotAllowed sign in.
-    const detail = await problemDetail(response);
-
-    return detail === "NotAllowed" ? { kind: "unconfirmed" } : { kind: "unauthorized" };
+    return { kind: "unauthorized" };
   }
 
   if (response.status === 403) {
@@ -100,9 +97,10 @@ async function readError(response: Response): Promise<ApiError> {
 
   const body = await response.text();
 
-  // Left raw: the function that made the call knows which kind of conflict it can be.
+  // Left raw: the function that made the call knows which kind of conflict it can be. Some
+  // conflicts carry no body at all.
   if (response.status === 409) {
-    return { kind: "conflict", body: JSON.parse(body) };
+    return { kind: "conflict", body: body ? JSON.parse(body) : null };
   }
 
   // Every 400 from this API is ProblemDetails with an errors dictionary keyed by field. Keys
@@ -113,20 +111,6 @@ async function readError(response: Response): Promise<ApiError> {
   }
 
   return { kind: "unexpected", status: response.status, message: body };
-}
-
-async function problemDetail(response: Response): Promise<string | undefined> {
-  const text = await response.text();
-
-  if (!text) {
-    return undefined;
-  }
-
-  try {
-    return (JSON.parse(text) as { detail?: string }).detail;
-  } catch {
-    return undefined;
-  }
 }
 
 /**
@@ -166,8 +150,12 @@ function byField(errors: Record<string, string[]>): Record<string, string[]> {
   return mapped;
 }
 
-export async function register(email: string, password: string): Promise<Result<void>> {
-  const result = await request<void>("/register", {
+/** Creates nothing yet: the API emails a code, and the account exists once that code is redeemed. */
+export async function startRegistration(
+  email: string,
+  password: string,
+): Promise<Result<{ registrationId: string }>> {
+  const result = await request<{ registrationId: string }>("/registration", {
     method: "POST",
     body: JSON.stringify({ email, password }),
   });
@@ -177,6 +165,30 @@ export async function register(email: string, password: string): Promise<Result<
   }
 
   return result;
+}
+
+/** Issues no session. The person signs in afterwards. */
+export function confirmRegistration(registrationId: string, code: string, password: string): Promise<Result<void>> {
+  return request<void>("/registration/confirm", {
+    method: "POST",
+    body: JSON.stringify({ registrationId, code, password }),
+  });
+}
+
+export type ResendOutcome = { sent: boolean; retryAfterSeconds: number; resendsLeft: number };
+
+export function resendRegistrationCode(registrationId: string): Promise<Result<ResendOutcome>> {
+  return request<ResendOutcome>("/registration/resend", {
+    method: "POST",
+    body: JSON.stringify({ registrationId }),
+  });
+}
+
+export function cancelRegistration(token: string): Promise<Result<void>> {
+  return request<void>("/registration/cancel", {
+    method: "POST",
+    body: JSON.stringify({ token }),
+  });
 }
 
 export async function signIn(email: string, password: string): Promise<Result<void>> {
@@ -196,13 +208,6 @@ export async function signIn(email: string, password: string): Promise<Result<vo
   await request<{ id: string }>("/subject", { method: "POST" });
 
   return { ok: true, data: undefined };
-}
-
-export async function resendConfirmation(email: string): Promise<Result<void>> {
-  return request<void>("/resendConfirmationEmail", {
-    method: "POST",
-    body: JSON.stringify({ email }),
-  });
 }
 
 export function signOut(): void {
