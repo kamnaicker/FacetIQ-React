@@ -31,7 +31,7 @@ export function GettingStarted({ onClose }: GettingStartedProps) {
   }
 
   const steps: Step[] = [
-    { label: "Add a claim", to: "/claims", done: claims.ok && claims.data.length > 0 },
+    { label: "Add something about yourself", to: "/claims", done: claims.ok && claims.data.length > 0 },
     {
       label: "Say who someone is to you",
       to: "/people",
@@ -66,7 +66,9 @@ export function GettingStarted({ onClose }: GettingStartedProps) {
       </div>
 
       <p className="mt-1 text-xs text-muted">
-        {finished ? "You're set up. Try a lookup next." : "Decide what others see when they ask about you."}
+        {finished
+          ? "You are set up. Try looking somebody up."
+          : "Three things to set up before anybody can ask about you."}
       </p>
 
       <ol className="mt-3 space-y-2.5">
@@ -79,9 +81,17 @@ export function GettingStarted({ onClose }: GettingStartedProps) {
 
         <li className="flex items-center gap-3 text-sm">
           <Marker number={4} done={false} />
-          <StepLabel label="Try a lookup" to="/lookup" muted={false} current={pathname === "/lookup"} />
+          <StepLabel label="Look someone up" to="/lookup" muted={false} current={pathname === "/lookup"} />
         </li>
       </ol>
+
+      {/* The steps say what to do next. The welcome page is where the reason for them lives. */}
+      <Link
+        to="/welcome"
+        className="focus-ring mt-4 inline-block rounded text-xs text-muted underline underline-offset-4 hover:text-ink"
+      >
+        What is FacetIQ for?
+      </Link>
     </section>
   );
 }

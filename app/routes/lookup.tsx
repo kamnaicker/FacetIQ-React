@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { DisclosureResult } from "../components/disclosure-result";
+import { PurposeNote } from "../components/purpose-note";
 import { Button } from "../components/ui/button";
 import { Field } from "../components/ui/field";
 import { PageHeader } from "../components/ui/page-header";
@@ -56,7 +57,10 @@ export default function Lookup() {
 
   return (
     <>
-      <PageHeader title="Lookup" description="Ask someone for a detail from their profile." />
+      <PageHeader
+        title="Lookup"
+        description="Ask someone for their name, their phone number, or anything else you need from them. The rules that person has written decide what you are given."
+      />
 
       <form onSubmit={handleSubmit} className="mt-6 max-w-sm space-y-4">
         <Field
@@ -65,17 +69,23 @@ export default function Lookup() {
           type="email"
           maxLength={limits.email}
           placeholder="name@example.com"
-          hint="The email address they use on FacetIQ."
+          hint="Type the email address this person signed up with."
           required
           errors={fieldErrors.subjectEmail}
         />
 
-        <Select label="What you want to know" name="attributeKey" defaultValue="name" options={kinds} />
+        <Select
+          label="What you want to know"
+          name="attributeKey"
+          hint="Pick what you want from this person. Their rules may give you less than you asked for."
+          defaultValue="name"
+          options={kinds}
+        />
 
         <Select
           label="Why you are asking"
           name="purpose"
-          hint="Their rules decide what to share based on this, and it is recorded with the answer."
+          hint="Pick your real reason. The person you are asking may share more or less depending on the reason you pick, and that person can see the reason on their own Requests page."
           defaultValue="Social"
           options={purposes}
         />
@@ -84,6 +94,8 @@ export default function Lookup() {
           {busy ? "Asking" : "Ask"}
         </Button>
       </form>
+
+      <PurposeNote className="mt-8" />
 
       {result && <DisclosureResult result={result} />}
     </>

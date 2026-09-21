@@ -15,7 +15,10 @@ type NormListProps = {
 export function NormList({ norms, claims, onRemove }: NormListProps) {
   if (norms.length === 0) {
     return (
-      <p className="text-sm text-muted">No rules yet, so nobody else can see anything about you.</p>
+      <p className="max-w-prose text-sm text-muted">
+        You have not written any rules yet, which means anybody who asks about you is told
+        nothing. Write your first rule at the bottom of this page.
+      </p>
     );
   }
 

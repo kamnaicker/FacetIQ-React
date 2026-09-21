@@ -25,11 +25,13 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
 
   if (!selected) {
     return (
-      <p className="text-sm text-muted">
+      <p className="max-w-prose text-sm text-muted">
+        A rule shares one thing you have added about yourself, and you have not added anything
+        yet. Add your name or your date of birth on the{" "}
         <Link to="/claims" className="text-ink underline underline-offset-4">
-          Add a claim
+          Claims page
         </Link>{" "}
-        first, then choose here who can see it.
+        first, then come back here and write a rule for it.
       </p>
     );
   }
@@ -66,6 +68,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       <Select
         label="What to share"
         name="attributeId"
+        hint="Pick which of the things you have added this rule is about. Each thing you have added needs its own rules."
         options={claimOptions}
         value={selected.id}
         onValueChange={(id) => {
@@ -75,28 +78,29 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       />
 
       {terms.length === 0 ? (
-        <p className="text-sm text-muted">
-          Anyone can see it. To limit a rule to certain people, first say who they are to you on
-          the{" "}
+        <p className="max-w-prose text-sm text-muted">
+          This rule will cover everybody who asks, because you have not said who anyone is to you
+          yet. To write a rule that covers only your colleagues or only your doctor, add those
+          people on the{" "}
           <Link to="/people" className="text-ink underline underline-offset-4">
             People page
-          </Link>
-          .
+          </Link>{" "}
+          first.
         </p>
       ) : (
         <Select
           label="Who can see it"
           name="relationship"
-          hint="People you have described this way, once they have confirmed it."
+          hint={`Pick "Anyone" to cover every person who asks. Pick a word like colleague to cover only the people you have called a colleague on the People page, once each of those people has agreed.`}
           defaultValue={any}
           options={[{ value: any, label: "Anyone" }, ...terms.map((term) => ({ value: term, label: term }))]}
         />
       )}
 
       <Select
-        label="When they are asking for"
+        label="Their reason for asking"
         name="purpose"
-        hint="The reason they give when they ask."
+        hint={`Leave this on "Any purpose" to cover every reason. Pick one reason to cover only the people who give that reason.`}
         errors={fieldErrors.purpose}
         defaultValue={any}
         options={[{ value: any, label: "Any purpose" }, ...purposes]}
@@ -105,6 +109,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       <Select
         label="How it is shown"
         name="transform"
+        hint="Pick how much the person is given when this rule applies."
         errors={fieldErrors.transform}
         options={displaysFor(selected.key)}
         value={display}
@@ -120,7 +125,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
           max={150}
           defaultValue={18}
           required
-          hint="They see only whether you are over or under this age, never the date."
+          hint="The person asking is told only that you are older or younger than the age you type, never your date of birth."
           errors={fieldErrors.transformParameter}
         />
       )}
@@ -131,7 +136,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
         maxLength={limits.principle}
         required
         placeholder="Colleagues know me by my professional name."
-        hint="Kept with every answer, so you can check later why something was shared."
+        hint="Write a sentence in your own words. The person who asks reads your sentence underneath the answer, and your sentence is kept on your Requests page."
         errors={fieldErrors.justifyingPrinciple}
       />
 

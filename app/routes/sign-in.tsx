@@ -35,7 +35,8 @@ export default function SignIn() {
 
     if (result.ok) {
       clearCache();
-      navigate("/lookup");
+      // Home decides where a signed in person lands, so a first sign in reaches the welcome page.
+      navigate("/");
       return;
     }
 
@@ -60,6 +61,7 @@ export default function SignIn() {
           maxLength={limits.email}
           autoComplete="email"
           placeholder="name@example.com"
+          hint="Type the email address you signed up with."
           required
         />
         <Field
@@ -67,6 +69,7 @@ export default function SignIn() {
           name="password"
           type="password"
           autoComplete="current-password"
+          hint="Type the password you chose when you created your account."
           required
         />
 

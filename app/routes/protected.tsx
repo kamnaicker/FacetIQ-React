@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from "react";
-import { Link, NavLink, Outlet, redirect, useNavigate } from "react-router";
+import { Link, NavLink, Outlet, redirect, useLocation, useNavigate } from "react-router";
 import { GettingStarted, useGuideAvailable } from "../components/getting-started";
 import { Switch } from "../components/ui/switch";
 import { ThemeToggle } from "../components/ui/theme-toggle";
@@ -45,6 +45,7 @@ function navClass({ isActive }: { isActive: boolean }): string {
 
 export default function Protected() {
   const navigate = useNavigate();
+  const { pathname } = useLocation();
   const notify = useNotify();
   const { result: account } = useAccount();
   const email = account?.ok ? account.data.email : null;
@@ -154,7 +155,8 @@ export default function Protected() {
       </header>
 
       <main className="w-full max-w-3xl px-6 py-10 md:px-10 md:py-14">
-        {guide && <GettingStarted onClose={closeGuide} />}
+        {/* The welcome page already lists the same three steps, so the panel stays out of its way. */}
+        {guide && pathname !== "/welcome" && <GettingStarted onClose={closeGuide} />}
         <Outlet />
       </main>
     </div>

@@ -7,8 +7,12 @@ export function NoProfile() {
 
   return (
     <div className="rounded-lg border border-line bg-surface px-4 py-4">
-      <p className="text-sm text-ink">No profile is linked to this account.</p>
-      <p className="mt-1 text-sm text-muted">Sign in with the account that holds your profile.</p>
+      <p className="max-w-prose text-sm text-ink">
+        Nothing about you is stored under this account, so this page has nothing to show.
+      </p>
+      <p className="mt-1 max-w-prose text-sm text-muted">
+        Sign out and sign in again with the email address you added your details under.
+      </p>
 
       <Button type="button" onClick={signOut} className="mt-4">
         Sign out

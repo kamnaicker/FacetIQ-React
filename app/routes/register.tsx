@@ -80,7 +80,7 @@ export default function Register() {
           maxLength={limits.email}
           autoComplete="email"
           placeholder="name@example.com"
-          hint="Others use this to ask you for details or to add you."
+          hint="Type an email address you check. Other people use this address to find you on FacetIQ."
           required
           errors={fieldErrors.email}
         />

@@ -13,6 +13,11 @@ type ClaimFormProps = {
   onSubmit: (body: CreateAttributeRequest) => Promise<boolean>;
 };
 
+// The label above this input changes with the kind chosen, but what the input does never does,
+// so one line covers all of them rather than seven lines saying the same thing.
+const valueHint =
+  "Enter your answer the way you want other people to see it. FacetIQ never corrects or reformats what you type.";
+
 export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
   const [kind, setKind] = useState("name");
   const [saves, setSaves] = useState(0);
@@ -41,7 +46,14 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="max-w-sm space-y-5">
-      <Select label="Kind" name="key" options={kinds} value={kind} onValueChange={setKind} />
+      <Select
+        label="What are you adding"
+        name="key"
+        hint="Pick what you want to add. The box below changes to match what you pick."
+        options={kinds}
+        value={kind}
+        onValueChange={setKind}
+      />
 
       {/* Remounted after each save so the phone number clears with the rest of the form. */}
       {kind === "phone" ? (
@@ -50,6 +62,7 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
           label={selected.label}
           name="value"
           defaultCountry="ZA"
+          hint={valueHint}
           errors={fieldErrors.value}
         />
       ) : (
@@ -61,7 +74,7 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
           maxLength={limits.claimValue}
           required
           placeholder={selected.placeholder}
-          hint={kind === "name" ? "Exactly as you want it shown, in any script or spelling." : undefined}
+          hint={valueHint}
           errors={fieldErrors.value}
         />
       )}
@@ -70,15 +83,15 @@ export function ClaimForm({ fieldErrors, busy, onSubmit }: ClaimFormProps) {
         label="Where you use it"
         name="label"
         maxLength={limits.claimLabel}
-        placeholder="professional"
-        hint="A note for yourself, so you can tell your claims apart when writing rules."
+        placeholder="at work"
+        hint="Write a short note for yourself. If you add two names, the note is how you tell the two names apart when you write your rules. Nobody who asks about you is shown the note."
         errors={fieldErrors.label}
       />
 
       <Select
-        label="Never shared except for"
+        label="Only ever share this for"
         name="collectedFor"
-        hint="Pick a reason to keep this claim to it. Your rules cannot share it for any other reason."
+        hint={`Leave this set to "Any reason" unless you want a hard limit. If you pick one reason, FacetIQ refuses every request that gives a different reason, even when one of your rules would have shared it.`}
         defaultValue={any}
         options={[{ value: any, label: "Any reason" }, ...purposes]}
       />

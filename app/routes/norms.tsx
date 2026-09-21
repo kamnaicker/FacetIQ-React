@@ -3,6 +3,7 @@ import { NormConflict } from "../components/norm-conflict";
 import { NormForm } from "../components/norm-form";
 import { NormList } from "../components/norm-list";
 import { NoProfile } from "../components/no-profile";
+import { PurposeNote } from "../components/purpose-note";
 import { Alert } from "../components/ui/alert";
 import { PageHeader } from "../components/ui/page-header";
 import { useNotify } from "../components/ui/toast";
@@ -56,7 +57,7 @@ export default function Norms() {
     switch (result.error.kind) {
       case "overlap":
         setConflict(result.error.conflict);
-        notify("warning", "Not saved. It overlaps a rule you already have.");
+        notify("warning", "Not saved. This rule overlaps a rule you already have.");
         break;
       case "validation":
         setFieldErrors(result.error.fieldErrors);
@@ -77,7 +78,7 @@ export default function Norms() {
     const result = await removeRule(norm.id);
 
     if (result.ok) {
-      notify("success", "Rule removed. It no longer applies to anyone.");
+      notify("success", "Rule removed. That rule no longer applies to anybody.");
       await refresh();
       return;
     }
@@ -91,7 +92,7 @@ export default function Norms() {
     <>
       <PageHeader
         title="Rules"
-        description="What each person sees when they ask about you. To change a rule, remove it and write it again."
+        description="Write a rule saying who can see your name, your date of birth, or anything else you have added, and how much of it each person is shown. A rule cannot be changed after you save it, so to change a rule, remove it and write a new one in its place."
       />
 
       {error && <div className="mt-6"><Alert>{error}</Alert></div>}
@@ -123,6 +124,8 @@ export default function Norms() {
               onSubmit={handleSubmit}
             />
           </div>
+
+          <PurposeNote className="mt-8" />
         </>
       )}
     </>
