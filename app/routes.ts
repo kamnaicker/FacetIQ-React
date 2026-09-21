@@ -6,6 +6,7 @@ export default [
   layout("routes/signed-out.tsx", [
     route("sign-in", "routes/sign-in.tsx"),
     route("register", "routes/register.tsx"),
+    route("registration/cancel", "routes/registration-cancel.tsx"),
   ]),
 
   layout("routes/protected.tsx", [

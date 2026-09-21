@@ -114,7 +114,6 @@ export type ApiError =
   | { kind: "overlap"; conflict: NormConflictResponse }
   | { kind: "inUse"; rules: NormResponse[] }
   | { kind: "unauthorized" }
-  | { kind: "unconfirmed" }
   | { kind: "forbidden" }
   | { kind: "rateLimited" }
   | { kind: "network" }
