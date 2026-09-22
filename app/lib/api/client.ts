@@ -256,6 +256,14 @@ export async function createNorm(body: CreateNormRequest): Promise<Result<NormRe
   return result;
 }
 
+/** Needs the password as well as the session. The token is cleared by the caller once it succeeds. */
+export function deleteAccount(password: string): Promise<Result<void>> {
+  return request<void>("/account", {
+    method: "DELETE",
+    body: JSON.stringify({ password }),
+  });
+}
+
 export async function removeRule(id: string): Promise<Result<void>> {
   return request<void>(`/norm/${id}`, { method: "DELETE" });
 }

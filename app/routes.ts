@@ -16,5 +16,6 @@ export default [
     route("claims", "routes/claims.tsx"),
     route("people", "routes/standings.tsx"),
     route("requests", "routes/history.tsx"),
+    route("settings", "routes/settings.tsx"),
   ]),
 ] satisfies RouteConfig;
