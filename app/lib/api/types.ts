@@ -95,6 +95,17 @@ export type StandingsResponse = {
   held: StandingResponse[];
 };
 
+/** Everything the account can see about itself, in the shapes its pages already use. */
+export type AccountExport = {
+  email: string;
+  exportedAt: string;
+  claims: AttributeResponse[];
+  rules: NormResponse[];
+  peopleYouAdded: StandingResponse[];
+  peopleWhoAddedYou: StandingResponse[];
+  requests: DisclosureRecordResponse[];
+};
+
 export type IssueStandingRequest = {
   email: string;
   value: string;

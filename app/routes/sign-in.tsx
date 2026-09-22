@@ -12,11 +12,11 @@ export function meta() {
   return [{ title: "Sign in | FacetIQ" }];
 }
 
-type Arrival = { email?: string; registered?: boolean } | null;
+type Arrival = { email?: string; registered?: boolean; deleted?: boolean } | null;
 
 export default function SignIn() {
   const navigate = useNavigate();
-  // Set by the register page after an account is created.
+  // Set by the register page after an account is created, or by settings after one is deleted.
   const arrival = useLocation().state as Arrival;
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
@@ -50,6 +50,8 @@ export default function SignIn() {
       {arrival?.registered && (
         <p className="mt-4 text-sm text-muted">Your account is ready. Sign in to continue.</p>
       )}
+
+      {arrival?.deleted && <p className="mt-4 text-sm text-muted">Your account has been deleted.</p>}
 
       <form onSubmit={handleSubmit} className="mt-6 space-y-4">
         {error && <Alert>{error}</Alert>}

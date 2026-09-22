@@ -19,8 +19,8 @@ export function clientLoader() {
   return null;
 }
 
-// Two groups because the app has two sides: what others see of you, and what you ask of them.
-// Within the first, the order a person sets themselves up in.
+// The app has two sides: what others see of you, and what you ask of them. Within the first, the
+// order a person sets themselves up in. The account itself sits apart from both.
 const groups = [
   {
     label: "Your profile",
@@ -34,6 +34,10 @@ const groups = [
   {
     label: "Ask someone",
     sections: [{ to: "/lookup", label: "Lookup" }],
+  },
+  {
+    label: "Account",
+    sections: [{ to: "/settings", label: "Settings" }],
   },
 ];
 

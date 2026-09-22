@@ -5,7 +5,7 @@ import { Field } from "./ui/field";
 import { Select, type Option } from "./ui/select";
 import { limits } from "../lib/api/limits";
 import type { AttributeResponse, CreateNormRequest } from "../lib/api/types";
-import { any, deny, displaysFor, kindLabel, purposes } from "../lib/options";
+import { any, claimLabel, deny, displaysFor, purposes } from "../lib/options";
 
 type NormFormProps = {
   claims: AttributeResponse[];
@@ -36,7 +36,7 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
     );
   }
 
-  const claimOptions: Option[] = claims.map((claim) => ({ value: claim.id, label: describe(claim) }));
+  const claimOptions: Option[] = claims.map((claim) => ({ value: claim.id, label: claimLabel(claim) }));
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -145,12 +145,4 @@ export function NormForm({ claims, terms, fieldErrors, busy, onSubmit }: NormFor
       </Button>
     </form>
   );
-}
-
-function describe(claim: AttributeResponse): string {
-  if (claim.key === "name") {
-    return claim.label ? `${claim.value} (${claim.label})` : claim.value;
-  }
-
-  return `${kindLabel(claim.key)}: ${claim.value}`;
 }

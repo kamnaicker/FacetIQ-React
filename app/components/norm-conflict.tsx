@@ -1,5 +1,5 @@
 import type { AttributeResponse, NormConflictResponse } from "../lib/api/types";
-import { kindLabel, who, why } from "../lib/options";
+import { claimLabel, who, why } from "../lib/options";
 
 type NormConflictProps = {
   conflict: NormConflictResponse;
@@ -56,7 +56,7 @@ function name(attributeId: string, claims: AttributeResponse[]): string {
     return "A claim you no longer hold";
   }
 
-  return claim.key === "name" ? claim.value : kindLabel(claim.key);
+  return claimLabel(claim);
 }
 
 function asker(relationship: string | null): string {
