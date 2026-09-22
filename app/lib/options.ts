@@ -1,4 +1,5 @@
 import type { Option } from "../components/ui/select";
+import type { AttributeResponse } from "./api/types";
 
 /** Selects cannot hold an empty value, so an unbound condition is carried as this sentinel. */
 export const any = "Any";
@@ -29,6 +30,22 @@ export const kinds: readonly Kind[] = [
 
 export function kindLabel(key: string): string {
   return kinds.find((kind) => kind.value === key)?.label ?? key;
+}
+
+/**
+ * One claim on one line, wherever a rule has to name the claim it is about. Two claims of the
+ * same kind are told apart by the note and the limit written on them, so both are carried here
+ * rather than only on the page the claim was added from.
+ */
+export function claimLabel(claim: AttributeResponse): string {
+  const named = claim.key === "name" ? claim.value : `${kindLabel(claim.key)}: ${claim.value}`;
+
+  const notes = [
+    claim.label,
+    claim.collectedFor ? `only for ${claim.collectedFor.toLowerCase()} reasons` : null,
+  ].filter((note) => note !== null && note !== "");
+
+  return notes.length > 0 ? `${named} (${notes.join(", ")})` : named;
 }
 
 // What a claim can be shown as depends on what it is. An age threshold only works on a date and

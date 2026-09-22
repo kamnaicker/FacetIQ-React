@@ -2,7 +2,7 @@ import { ConfirmButton } from "./ui/confirm-button";
 import { List, ListItem } from "./ui/list";
 import { Value } from "./ui/value";
 import type { AttributeResponse, NormResponse } from "../lib/api/types";
-import { displayLabel, kindLabel } from "../lib/options";
+import { claimLabel, displayLabel } from "../lib/options";
 
 type NormListProps = {
   norms: NormResponse[];
@@ -30,7 +30,7 @@ export function NormList({ norms, claims, onRemove }: NormListProps) {
     <div className="space-y-6">
       {groups.map(({ claim, rules }) => (
         <section key={claim.id}>
-          <h3 className="text-sm font-medium text-ink">{describe(claim)}</h3>
+          <h3 className="text-sm font-medium text-ink">{claimLabel(claim)}</h3>
 
           <List className="mt-2">
             {rules.map((norm) => (
@@ -79,8 +79,4 @@ function RuleSentence({ norm }: { norm: NormResponse }) {
       )}
     </p>
   );
-}
-
-function describe(claim: AttributeResponse): string {
-  return claim.key === "name" ? claim.value : `${kindLabel(claim.key)}: ${claim.value}`;
 }
